@@ -1,5 +1,5 @@
 "use client";
-import LoginForm from "../components/loginform";
+import LoginForm from "../../components/loginform";
 import "./styles.scss";
 
 export default function LoginPage() {

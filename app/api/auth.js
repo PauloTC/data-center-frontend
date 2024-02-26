@@ -1,4 +1,4 @@
-import { ENV } from "../utils/constants";
+import { ENV } from "@/utils/constants";
 
 export class Auth {
   async login(data) {
