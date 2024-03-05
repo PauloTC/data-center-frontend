@@ -4,3 +4,7 @@ export * from "./user";
 export * from "./research";
 export * from "./subscribe";
 export * from "./investigation";
+export * from "./team";
+export * from "./public";
+export * from "./type";
+export * from "./researcher";

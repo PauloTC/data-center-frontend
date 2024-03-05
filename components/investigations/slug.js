@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+
 import { libre_franklin700, libre_franklin600 } from "@/app/fonts";
 import Image from "next/image";
 import { Investigation } from "@/app/api";
@@ -14,8 +16,8 @@ export default function InvestigationSlugComponent({ params }) {
     (async () => {
       try {
         const response = await investigationCtrl.getInvestigation(params.slug);
+        console.log("response", response);
         setInvestigation(response.attributes);
-        console.log(`response`, response);
       } catch (error) {
         console.log("error", error);
       }
@@ -30,12 +32,12 @@ export default function InvestigationSlugComponent({ params }) {
         >
           {investigation?.name}
         </h3>
-        <button
-          type="button"
+        <Link
+          href={`/investigations/${params.slug}/edit`}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center"
         >
           Editar
-        </button>
+        </Link>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-4">
@@ -47,30 +49,11 @@ export default function InvestigationSlugComponent({ params }) {
               <li className="">
                 <label
                   htmlFor="name"
-                  className={`${libre_franklin600.className} block mb-3 text-sm font-medium text-gray-900`}
+                  className={`${libre_franklin600.className} mb-3 text-sm font-medium text-gray-900`}
                 >
                   Nombre:
                 </label>
                 <p className="text-sm">{investigation?.name}</p>
-                {/* <input
-                    type="text"
-                    id="name"
-                    readOnly
-                    value={attributes.name}
-                    className="
-                      bg-gray-50 
-                      border border-gray-300 
-                      text-gray-900 
-                      text-sm 
-                      rounded-lg 
-                      focus:ring-blue-500 
-                      focus:border-blue-500 
-                      block 
-                      w-full 
-                      p-2.5"
-                    placeholder="Paulo Roberto"
-                    required
-                  /> */}
               </li>
               <li className="flex flex-col">
                 <label
@@ -81,11 +64,11 @@ export default function InvestigationSlugComponent({ params }) {
                 </label>
                 <textarea
                   id="description"
+                  readOnly
                   rows="5"
                   className="w-full min-h-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
                   placeholder="Write a comment..."
-                  defaultValue={investigation?.description[0].children[0].text}
-                  required
+                  defaultValue={investigation?.description}
                 ></textarea>
               </li>
 
@@ -93,7 +76,7 @@ export default function InvestigationSlugComponent({ params }) {
                 <div className="flex">
                   <label
                     htmlFor="project"
-                    className={`${libre_franklin600.className} w-full text-sm font-medium text-gray-900 max-w-60	`}
+                    className={`${libre_franklin600.className} w-full text-sm font-medium text-gray-900 max-w-60`}
                   >
                     Proyecto:
                   </label>
@@ -111,7 +94,7 @@ export default function InvestigationSlugComponent({ params }) {
                   <ul className="flex flex-col grow gap-4">
                     {investigation?.teams.data.map((team, index) => {
                       return (
-                        <li className="text-sm capitalize grow">
+                        <li key={index} className="text-sm capitalize grow">
                           {team?.attributes.name}
                         </li>
                       );
@@ -138,10 +121,13 @@ export default function InvestigationSlugComponent({ params }) {
                     {investigation?.scope}
                   </p>
                 </div>
-                <div className="flex gap-8 items-center">
+                <div className="flex  items-center">
                   <label
-                    htmlFor="status"
-                    className="block text-sm font-medium text-gray-900 min-w-40"
+                    className="
+                      block text-sm 
+                      font-medium 
+                      text-gray-900 
+                      w-full max-w-60"
                   >
                     Estado:
                   </label>
@@ -150,7 +136,6 @@ export default function InvestigationSlugComponent({ params }) {
                       `${libre_franklin600.className}`,
                       "rounded-lg",
                       "text-xs",
-                      "block",
                       "capitalize",
                       "text-white",
                       "px-3",
@@ -164,22 +149,6 @@ export default function InvestigationSlugComponent({ params }) {
                   >
                     {investigation?.status}
                   </span>
-                  {/* <select
-                      id="phase"
-                      className="
-                        bg-gray-50 
-                        border 
-                        border-gray-300 
-                        text-gray-900 
-                        text-sm rounded-lg 
-                        focus:ring-blue-500 
-                        focus:border-blue-500 
-                        block w-full p-2.5"
-                    >
-                      <option selected>{`${attributes.status}`}</option>
-                      <option value="open">Abierto</option>
-                      <option value="in progress">En progreso</option>
-                    </select> */}
                 </div>
               </li>
             </ul>
@@ -192,26 +161,24 @@ export default function InvestigationSlugComponent({ params }) {
               Herramienta
             </h4>
             <ul className="flex flex-col gap-8">
-              {investigation?.guide && (
-                <li className="flex flex-col">
-                  <label
-                    className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
-                    htmlFor="guide"
-                  >
-                    Detalle de la guía, cuestionario o herramienta:
-                  </label>
-                  <textarea
-                    id="guide"
-                    rows="15"
-                    className="w-full min-h-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
-                    placeholder="Write a comment..."
-                    defaultValue={investigation?.guide[0].children[0].text}
-                    required
-                  ></textarea>
-                </li>
-              )}
+              <li className="flex flex-col">
+                <label
+                  className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
+                  htmlFor="guide"
+                >
+                  Detalle de la guía, cuestionario o herramienta:
+                </label>
+                <textarea
+                  id="guide"
+                  rows="15"
+                  className="w-full min-h-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
+                  placeholder="No hay guía..."
+                  defaultValue={investigation?.guide}
+                  required
+                ></textarea>
+              </li>
 
-              <li className="flex gap-4">
+              {/* <li className="flex gap-4">
                 <label className="block mb-3 text-sm font-medium text-gray-900">
                   Guía adjunta:
                 </label>
@@ -226,7 +193,7 @@ export default function InvestigationSlugComponent({ params }) {
                 ) : (
                   <p>No hay guía</p>
                 )}
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
@@ -238,82 +205,84 @@ export default function InvestigationSlugComponent({ params }) {
               Ficha técnica
             </h4>
             <ul className="flex flex-col gap-4">
-              <li className="flex gap-4">
-                <label
-                  htmlFor="date"
-                  className="block text-sm font-medium text-gray-900 min-w-40"
-                >
-                  Publico:
+              <li className="flex flex-col">
+                <label className="text-sm font-medium text-gray-900 mb-3">
+                  Pùblico objetivo:
                 </label>
-                {investigation?.publics.data.map((audience, index) => {
-                  return (
-                    <p key={index} className="text-gray-900 text-sm mb-2">
-                      {audience.attributes.name}
-                    </p>
-                  );
-                })}
+                <ul className="flex">
+                  {investigation?.publics.data.map((audience, index) => {
+                    return (
+                      <li key={index} className="text-sm capitalize grow">
+                        {audience?.attributes.name}
+                      </li>
+                    );
+                  })}
+                </ul>
               </li>
 
-              <li className="flex gap-4">
+              <li className="flex flex-col">
                 <label
-                  htmlFor="goal"
-                  className="block text-sm font-medium text-gray-900 min-w-40"
+                  className={`${libre_franklin600.className} mb-3 text-sm font-medium text-gray-900`}
                 >
                   Tipo de investigación:
                 </label>
-                {investigation?.investigation_types.data.map((type, index) => {
-                  return (
-                    <p key={index} className="text-gray-900 text-sm">
-                      {type.attributes.name}
-                    </p>
-                  );
-                })}
+                <ul className="flex">
+                  {investigation?.investigation_types.data.map(
+                    (type, index) => {
+                      return (
+                        <li key={index} className="text-gray-900 text-sm grow">
+                          {type.attributes.name}
+                        </li>
+                      );
+                    }
+                  )}
+                </ul>
               </li>
 
               <li>
                 <label
                   htmlFor="goal"
-                  className="block text-sm font-medium text-gray-900 min-w-40 mb-3"
+                  className="block text-sm font-medium text-gray-900 mb-3"
                 >
                   Muestra:
                 </label>
                 <textarea
-                  id="description"
                   rows="8"
                   className="w-full min-h-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
-                  placeholder="Write a comment..."
-                  defaultValue={investigation?.sample[0].children[0].text}
-                  required
+                  placeholder="Escribe la muestra..."
+                  defaultValue={investigation?.sample}
                 ></textarea>
               </li>
 
-              <li className="flex gap-4">
+              <li className="flex flex-col">
                 <label
                   htmlFor="date"
-                  className="block text-sm font-medium text-gray-900 min-w-40"
+                  className="block text-sm font-medium text-gray-900 w-full mb-3"
                 >
                   Lugar:
                 </label>
-                {investigation?.locations.data.map((location, index) => {
-                  return (
-                    <p key={index} className="text-gray-900 text-sm grow">
-                      {location.attributes.name}
-                    </p>
-                  );
-                })}
+                <ul className="flex gap-4">
+                  {investigation?.locations.data.map((location, index) => {
+                    return (
+                      <li key={index} className="text-gray-900 text-sm grow">
+                        {location.attributes.name}
+                      </li>
+                    );
+                  })}
+                </ul>
               </li>
 
-              <li className="flex gap-4 flex-col">
+              <li className="flex flex-col gap-4">
                 <label
                   htmlFor="goal"
-                  className="block text-sm font-medium text-gray-900 min-w-40"
+                  className="block text-sm font-medium text-gray-900 w-full max-w-60"
                 >
                   Researchers:
                 </label>
-                <ul className="text-gray-900 text-sm flex gap-4">
+                <ul className="text-gray-900 text-sm flex  gap-4">
                   {investigation?.researchers.data.map((researcher, index) => {
                     return (
-                      <li className="flex gap-4 items-center grow">
+                      <li key={index} className="flex gap-4 items-center grow">
                         <Image
                           alt={
                             researcher.attributes.photo.data[0].attributes.name
@@ -335,36 +304,36 @@ export default function InvestigationSlugComponent({ params }) {
                   })}
                 </ul>
               </li>
+            </ul>
+          </div>
 
+          <div className="border border-gray-200 rounded-xl p-6">
+            <h4
+              className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+            >
+              Objetivos
+            </h4>
+            <ul className="flex flex-col gap-4">
               <li>
-                <label
-                  htmlFor="goal"
-                  className="block text-sm font-medium text-gray-900 min-w-40 mb-3"
-                >
+                <label className="block text-sm font-medium text-gray-900 min-w-40 mb-3">
                   Objetivo Principal:
                 </label>
                 <p className="text-gray-900 text-sm">{investigation?.goal}</p>
               </li>
-
               <li>
-                <label
-                  htmlFor="goal"
-                  className="block text-sm font-medium text-gray-900 min-w-40 mb-3"
-                >
+                <p className="block text-sm font-medium text-gray-900 min-w-40 mb-3">
                   Objetivos Especificos:
-                </label>
+                </p>
 
-                {investigation?.specific_goals.map((goal, index) => {
-                  return (
-                    <p key={index} className="text-gray-900 text-sm mb-2">
-                      {goal.children[0].text}
-                    </p>
-                  );
-                })}
+                <textarea
+                  rows="5"
+                  className="w-full min-h-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
+                  placeholder="Obejtivos especificos..."
+                  defaultValue={investigation?.specific_goals}
+                ></textarea>
               </li>
             </ul>
           </div>
-
           {investigation?.insights.data.length > 0 && (
             <div className="border border-gray-200 rounded-xl p-6">
               <h4
@@ -385,7 +354,7 @@ export default function InvestigationSlugComponent({ params }) {
             </div>
           )}
 
-          {investigation?.media.data && (
+          {/* {investigation?.media.data && (
             <div className="border border-gray-200 rounded-xl p-6">
               <h4
                 className={`${libre_franklin700.className} text-xl mb-3 capitalize`}
@@ -404,13 +373,9 @@ export default function InvestigationSlugComponent({ params }) {
                 </li>
               </ul>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </>
-    // <>
-    //   <h3>Investigation Detail</h3>
-
-    // </>
   );
 }

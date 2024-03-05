@@ -1,6 +1,34 @@
 import { ENV } from "@/utils/constants";
 
 export class Investigation {
+  async createInvestigation(data) {
+    try {
+      const url = `${ENV.API_URL}${ENV.ENDPOINTS.INVESTIGATIONS}`;
+      const params = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: {
+            ...data,
+          },
+        }),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      console.log(result);
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getInvestigations() {
     try {
       const populateInvestigation =

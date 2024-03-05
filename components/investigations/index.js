@@ -66,7 +66,6 @@ export default function InvestigationsComponent() {
         <div>
           <Link
             href={"/investigations/create"}
-            type="button"
             className="
               text-white 
               flex 
