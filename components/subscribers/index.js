@@ -26,10 +26,15 @@ export default function SubscribersComponent() {
   return (
     <section>
       <h4
-        className={`${libre_franklin600.className} text-slate-700 capitalize text-3xl mb-6`}
+        className={`${libre_franklin600.className} text-slate-700 capitalize text-3xl mb-3`}
       >
         Subscriptores
       </h4>
+      <p className="tex-sm mb-6">
+        Base de datos recopilada de clientes suscritos de forma voluntaria a
+        través del landing de{" "}
+        <span className="font-bold">Conecta Alicorp.</span>
+      </p>
       <div className="relative overflow-x-auto">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -48,6 +53,9 @@ export default function SubscribersComponent() {
               </th>
               <th scope="col" className="px-6 py-3">
                 Email
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Negocio
               </th>
             </tr>
           </thead>
@@ -72,6 +80,9 @@ export default function SubscribersComponent() {
                       {subscriber.attributes.document_number}
                     </td>
                     <td className="px-6 py-4">{subscriber.attributes.email}</td>
+                    <td className="px-6 py-4 capitalize">
+                      {subscriber.attributes.business}
+                    </td>
                   </tr>
                 );
               })}

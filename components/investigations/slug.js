@@ -26,18 +26,38 @@ export default function InvestigationSlugComponent({ params }) {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <h3
-          className={`${libre_franklin600.className} text-slate-700 uppercase text-xl`}
-        >
-          {investigation?.name}
-        </h3>
-        <Link
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex">
+          <Link
+            className="text-blue-700 hover:text-blue-800"
+            href="/investigations"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M14 8a.75.75 0 0 1-.75.75H4.56l1.22 1.22a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Link>
+          <h3
+            className={`${libre_franklin600.className} ml-3 text-slate-700 uppercase text-xl`}
+          >
+            {investigation?.name}
+          </h3>
+        </div>
+
+        <button
           href={`/investigations/${params.slug}/edit`}
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center"
+          className="disabled text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center"
         >
           Editar
-        </Link>
+        </button>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-4">
@@ -178,7 +198,7 @@ export default function InvestigationSlugComponent({ params }) {
                 ></textarea>
               </li>
 
-              {/* <li className="flex gap-4">
+              <li className="flex gap-4">
                 <label className="block mb-3 text-sm font-medium text-gray-900">
                   Guía adjunta:
                 </label>
@@ -186,14 +206,14 @@ export default function InvestigationSlugComponent({ params }) {
                   <a
                     className="text-sm text-blue-500 hover:underline"
                     target="_blank"
-                    href={investigation?.guide_media.data.attributes.url}
+                    href={investigation?.guide_media?.data?.attributes?.url}
                   >
-                    {investigation?.guide_media.data.attributes.name}
+                    {investigation?.guide_media?.data?.attributes?.name}
                   </a>
                 ) : (
                   <p>No hay guía</p>
                 )}
-              </li> */}
+              </li>
             </ul>
           </div>
         </div>
@@ -277,7 +297,7 @@ export default function InvestigationSlugComponent({ params }) {
                   htmlFor="goal"
                   className="block text-sm font-medium text-gray-900 w-full max-w-60"
                 >
-                  Researchers:
+                  Responsables:
                 </label>
                 <ul className="text-gray-900 text-sm flex  gap-4">
                   {investigation?.researchers.data.map((researcher, index) => {
@@ -334,6 +354,30 @@ export default function InvestigationSlugComponent({ params }) {
               </li>
             </ul>
           </div>
+
+          <div className="border border-gray-200 rounded-xl p-6">
+            <h4
+              className={`${libre_franklin700.className} text-xl mb-3 capitalize`}
+            >
+              Presentación
+            </h4>
+            {investigation?.media.data ? (
+              <ul className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
+                <li className="w-full block px-4 py-2 border-b border-gray-200">
+                  <a
+                    className="text-sm text-blue-500 hover:underline"
+                    target="_blank"
+                    href={investigation?.media.data.attributes.url}
+                  >
+                    {investigation?.media.data.attributes.name}
+                  </a>
+                </li>
+              </ul>
+            ) : (
+              <p>No se ajuntaron archivos</p>
+            )}
+          </div>
+
           {investigation?.insights.data.length > 0 && (
             <div className="border border-gray-200 rounded-xl p-6">
               <h4
@@ -353,27 +397,6 @@ export default function InvestigationSlugComponent({ params }) {
               </ul>
             </div>
           )}
-
-          {/* {investigation?.media.data && (
-            <div className="border border-gray-200 rounded-xl p-6">
-              <h4
-                className={`${libre_franklin700.className} text-xl mb-3 capitalize`}
-              >
-                Presentación
-              </h4>
-              <ul className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
-                <li className="w-full block px-4 py-2 border-b border-gray-200">
-                  <a
-                    className="text-sm text-blue-500 hover:underline"
-                    target="_blank"
-                    href={investigation?.media.data.attributes.url}
-                  >
-                    {investigation?.media.data.attributes.name}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          )} */}
         </div>
       </div>
     </>

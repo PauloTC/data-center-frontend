@@ -44,7 +44,7 @@ export function SubscribeForm() {
 
   return (
     <>
-      <span className="text-sm">Paso 1 de 2</span>
+      {/* <span className="text-sm">Paso 1 de 2</span> */}
       <h4 className={`${myFont.className} font-bold text-3xl mb-4`}>
         Regístrate
       </h4>
@@ -82,7 +82,7 @@ export function SubscribeForm() {
             htmlFor="document_number"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            ¿Cúal es tu número de DNI / CE?
+            ¿Cúal es tu número de DNI / RUC?
           </label>
           <input
             type="number"
@@ -185,7 +185,39 @@ export function SubscribeForm() {
             required
           />
         </div>
-
+        <div className="mb-8">
+          <label
+            htmlFor="email"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Tengo un(a)
+          </label>
+          <select
+            id="business"
+            className="
+                  bg-gray-50 
+                  border 
+                  border-gray-300 
+                  text-gray-900 
+                  text-sm 
+                  rounded-lg 
+                  focus:ring-blue-500 
+                  focus:border-blue-500 
+                  block w-full p-2.5"
+            value={formik.values.business}
+            onChange={formik.handleChange}
+            error={formik.errors.business}
+          >
+            <option value="">Selecciona tu negocio</option>
+            <option value="bodega">Bodega</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="panadería">Panadería</option>
+            <option value="chifa">Chifa</option>
+            <option value="mayorista">Negocio Mayorista</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+        <div className="mb-8"></div>
         <div className="flex gap-5 items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -197,9 +229,9 @@ export function SubscribeForm() {
           </svg>
 
           <p className="text-sm">
-            Los datos que nos proporciones son confidenciales y solo serán
-            utilizados al contactarte para las actividades de Creando Contigo.
-            No se utilizarán con fines comerciales ni publicitarios.
+            Priorizamos tu seguridad y la confidencialidad de la información que
+            compartes con nosotros. En Alicorp, la seguridad de tu información
+            es nuestra prioridad, asegurando tu privacidad y bienestar.
           </p>
         </div>
         <button

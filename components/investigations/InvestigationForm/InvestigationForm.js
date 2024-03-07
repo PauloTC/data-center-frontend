@@ -1,5 +1,6 @@
 "use client";
 import slugify from "slugify";
+import Link from "next/link";
 import { libre_franklin700, libre_franklin600 } from "@/app/fonts";
 import { useEffect, useState } from "react";
 
@@ -170,11 +171,30 @@ export function InvestigationForm({ params, title }) {
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="flex justify-between items-center mb-6">
-        <h4
-          className={`${libre_franklin600.className} text-slate-700 uppercase text-xl`}
-        >
-          {title}
-        </h4>
+        <div className="flex items-center">
+          <Link
+            className="text-blue-700 hover:text-blue-800"
+            href="/investigations"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M14 8a.75.75 0 0 1-.75.75H4.56l1.22 1.22a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Link>
+          <h4
+            className={`${libre_franklin600.className} ml-3 text-slate-700 uppercase text-xl`}
+          >
+            {title}
+          </h4>
+        </div>
         <button
           className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center"
           type="submit"
@@ -197,7 +217,7 @@ export function InvestigationForm({ params, title }) {
                     block mb-3 text-sm font-medium 
                     text-gray-900`}
                 >
-                  Nombre:
+                  Nombre*
                 </label>
 
                 <input
@@ -218,7 +238,7 @@ export function InvestigationForm({ params, title }) {
                   className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
                   htmlFor="description"
                 >
-                  Descripción
+                  Descripción*
                 </label>
                 <textarea
                   id="description"
@@ -242,7 +262,7 @@ export function InvestigationForm({ params, title }) {
                     max-w-60
                     text-gray-900`}
                 >
-                  Proyecto:
+                  Proyecto*
                 </label>
                 <select
                   value={formik.values.project}
@@ -280,7 +300,7 @@ export function InvestigationForm({ params, title }) {
                     mb-3
                     text-gray-900`}
                 >
-                  Equipos Involucrados:
+                  Equipos Involucrados*
                 </label>
 
                 <MultiSelect
@@ -305,7 +325,7 @@ export function InvestigationForm({ params, title }) {
                     max-w-60
                     text-gray-900`}
                 >
-                  Fecha:
+                  Trimestre*
                 </label>
                 <select
                   value={formik.values.date}
@@ -342,7 +362,7 @@ export function InvestigationForm({ params, title }) {
                     max-w-60
                     text-gray-900`}
                 >
-                  Amplitud:
+                  Amplitud*
                 </label>
 
                 <select
@@ -380,7 +400,7 @@ export function InvestigationForm({ params, title }) {
                     max-w-60
                     text-gray-900`}
                 >
-                  Status:
+                  Estado*
                 </label>
                 <select
                   value={formik.values.status}
@@ -431,7 +451,7 @@ export function InvestigationForm({ params, title }) {
                   placeholder="Escribe el detalle de la guía, cuestionario o herramienta..."
                 ></textarea>
               </li>
-              {/* <li className="flex flex-col">
+              <li className="flex flex-col">
                 <label
                   className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
                   htmlFor="guide_media"
@@ -448,7 +468,7 @@ export function InvestigationForm({ params, title }) {
                     );
                   }}
                 />
-              </li> */}
+              </li>
             </ul>
           </div>
         </div>
@@ -601,6 +621,31 @@ export function InvestigationForm({ params, title }) {
                 ></textarea>
               </li>
             </ul>
+          </div>
+          <div className="border border-gray-200 rounded-xl p-6">
+            <h4
+              className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+            >
+              Presentación
+            </h4>
+            <li className="flex flex-col">
+              <label
+                className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
+                htmlFor="guide_media"
+              >
+                Adjuntar archivo
+              </label>
+              <input
+                type="file"
+                id="guide_media"
+                onChange={(event) => {
+                  formik.setFieldValue(
+                    "guide_media",
+                    event.currentTarget.files[0]
+                  );
+                }}
+              />
+            </li>
           </div>
         </div>
       </div>

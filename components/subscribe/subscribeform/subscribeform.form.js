@@ -7,6 +7,7 @@ export function initialValues() {
     birthdate: "",
     cellphone: "",
     email: "",
+    business: "",
   };
 }
 
@@ -19,5 +20,6 @@ export function validationSchema() {
     email: Yup.string()
       .email("El correo electrónico es inválido")
       .required(true),
+    business: Yup.string().required(true),
   });
 }
