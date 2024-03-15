@@ -17,6 +17,7 @@ export function initialValues() {
     goal: "",
     specific_goals: "",
     guide: "",
+    guide_media_link: "",
   };
 }
 
@@ -37,5 +38,6 @@ export function validationSchema() {
     goal: Yup.string(),
     specific_goals: Yup.string(),
     guide: Yup.string(),
+    guide_media_link: Yup.string(),
   });
 }

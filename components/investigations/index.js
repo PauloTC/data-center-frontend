@@ -48,17 +48,22 @@ export default function InvestigationsComponent() {
             </li>
             <li>
               <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                Desarrollate
+                Dexarrollate
               </span>
             </li>
             <li>
               <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                Hub
+                DiaDia Dex
               </span>
             </li>
             <li>
               <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                Loyalty
+                Insuma
+              </span>
+            </li>
+            <li>
+              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
+                Web de clientes
               </span>
             </li>
           </ul>
@@ -105,6 +110,7 @@ export default function InvestigationsComponent() {
               <div>
                 <div className="mb-3">
                   <h4
+                    title={investigation.attributes.name}
                     className={`${libre_franklin500.className} text-slate-800 text-sm`}
                   >
                     {investigation.attributes.name}

@@ -14,6 +14,8 @@ import { useFormik } from "formik";
 import { initialValues, validationSchema } from "./InvestigationForm.form";
 import { useRouter } from "next/navigation";
 
+import AWS from "aws-sdk";
+
 export function InvestigationForm({ params, title }) {
   const router = useRouter();
 
@@ -36,6 +38,13 @@ export function InvestigationForm({ params, title }) {
         const researchers = formValues.researchers.map(
           (researcher) => researcher.value
         );
+
+        const file = formValues.guide_media_link;
+
+        const guide_media_link = await uploadToS3(file);
+
+        console.log("s3Url", guide_media_link);
+
         await investigationCtrl.createInvestigation({
           ...formValues,
           slug,
@@ -44,6 +53,7 @@ export function InvestigationForm({ params, title }) {
           locations,
           investigation_types,
           researchers,
+          guide_media_link,
         });
         formik.handleReset();
         router.push("/investigations", { scroll: false });
@@ -52,6 +62,33 @@ export function InvestigationForm({ params, title }) {
       }
     },
   });
+
+  AWS.config.update({
+    accessKeyId: "AKIARUO3BI5AIKALEON6",
+    secretAccessKey: "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",
+    region: "sa-east-1", // ej. 'us-east-1'
+  });
+
+  const s3 = new AWS.S3();
+
+  // Función para subir un archivo a S3
+  async function uploadToS3(file) {
+    const params = {
+      Bucket: "data-center-strapi",
+      Key: file.name, // Nombre del archivo en tu bucket S3
+      Body: file,
+      ACL: "public-read", // Si quieres que el archivo sea público
+    };
+
+    try {
+      const data = await s3.upload(params).promise();
+      console.log(`Archivo subido exitosamente en ${data.Location}`);
+      return data.Location;
+    } catch (error) {
+      console.log("Error al subir el archivo:", error);
+      throw error;
+    }
+  }
 
   const investigationCtrl = new Investigation();
   const investigationTypeCtrl = new InvestigationType();
@@ -137,6 +174,10 @@ export function InvestigationForm({ params, title }) {
     { value: "planeamiento financiero", label: "Planeamiento Financiero" },
     { value: "web de clientes", label: "Web de Clientes" },
     { value: "web del vendedor", label: "Web del Vendedor" },
+    { value: "nitro", label: "Nitro" },
+    { value: "propuesta valor B2B", label: "Propuesta Valor B2B" },
+    { value: "genia", label: "Genia" },
+    { value: "eficiencias", label: "Eficiencias" },
   ];
 
   const dates = [
@@ -155,6 +196,8 @@ export function InvestigationForm({ params, title }) {
   const status = [
     { value: "en curso", label: "En curso" },
     { value: "finalizado", label: "Finalizado" },
+    { value: "por iniciar", label: "Por iniciar" },
+    { value: "bloqueado", label: "Bloqueado" },
   ];
 
   const locations = [
@@ -202,230 +245,316 @@ export function InvestigationForm({ params, title }) {
           Guardar
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div>
         <div className="flex flex-col gap-4">
           <div className="border border-gray-200 rounded-xl p-6">
             <h4 className={`${libre_franklin700.className} text-xl mb-4`}>
-              Detalle de la investigación
+              Ficha Técnica
             </h4>
-            <ul className="flex flex-col gap-6">
-              <li className="">
-                <label
-                  htmlFor="name"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block mb-3 text-sm font-medium 
-                    text-gray-900`}
-                >
-                  Nombre*
-                </label>
+            <div className="grid grid-cols-2 gap-6">
+              <ul className="flex flex-col gap-6">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="flex flex-col w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Título de la investigación*
+                    </span>
+                    <span className="text-xs font-regular">
+                      Máximo 20 caracteres
+                    </span>
+                  </label>
 
-                <input
-                  defaultValue={investigation?.name}
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  error={formik.errors.name}
-                  type="text"
-                  id="name"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  placeholder="Nombre de la investigación"
-                  required
-                />
-              </li>
+                  <input
+                    defaultValue={investigation?.name}
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    error={formik.errors.name}
+                    maxLength={20}
+                    type="text"
+                    id="name"
+                    className="
+                      bg-gray-50 self-start 
+                      border border-gray-300 
+                      text-gray-900 text-sm rounded-lg 
+                      focus:ring-blue-500 focus:border-blue-500 
+                      block w-full p-2.5"
+                    placeholder="Titulo de la investigación"
+                    required
+                  />
+                </li>
 
-              <li className="flex flex-col">
-                <label
-                  className="block mb-3 text-sm font-medium text-gray-900 min-w-40"
-                  htmlFor="description"
-                >
-                  Descripción*
-                </label>
-                <textarea
-                  id="description"
-                  rows="5"
-                  className="w-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
-                  placeholder="Escribir la descripción..."
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  error={formik.errors.description}
-                  required
-                ></textarea>
-              </li>
+                <li className="flex gap-4">
+                  <label className="flex flex-col w-80" htmlFor="description">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Contexto de investigación
+                    </span>
+                    <span className="text-xs font-regular">
+                      Máximo 200 caracteres
+                    </span>
+                  </label>
+                  <textarea
+                    id="description"
+                    rows="5"
+                    maxlength="200"
+                    className="w-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
+                    placeholder="Escribir la descripción..."
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    error={formik.errors.description}
+                    required
+                  ></textarea>
+                </li>
 
-              <li className="flex items-center">
-                <label
-                  htmlFor="project"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block text-sm font-medium
-                    w-full
-                    max-w-60
-                    text-gray-900`}
-                >
-                  Proyecto*
-                </label>
-                <select
-                  value={formik.values.project}
-                  onChange={formik.handleChange}
-                  error={formik.errors.project}
-                  required
-                  id="project"
-                  className="
-                    bg-gray-50 
-                    border 
-                    border-gray-300 
-                    text-gray-900 
-                    text-sm rounded-lg 
-                    focus:ring-blue-500 
-                    focus:border-blue-500 
-                    block w-full p-2.5"
-                >
-                  <option value="">Seleccionar proyecto</option>
-                  {projects.map((project) => (
-                    <option key={project.value} value={project.value}>
-                      {project.label}
-                    </option>
-                  ))}
-                </select>
-              </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="project" className="flex flex-col w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Proyecto*
+                    </span>
+                    <span className="text-xs font-regular">
+                      Proyecto de la investigación
+                    </span>
+                  </label>
+                  <select
+                    value={formik.values.project}
+                    onChange={formik.handleChange}
+                    error={formik.errors.project}
+                    required
+                    id="project"
+                    className="
+                      bg-gray-50 
+                      border 
+                      border-gray-300 
+                      text-gray-900 
+                      text-sm rounded-lg 
+                      focus:ring-blue-500 
+                      focus:border-blue-500 
+                      block w-full p-2.5"
+                  >
+                    <option value="">Seleccionar proyecto</option>
+                    {projects.map((project) => (
+                      <option key={project.value} value={project.value}>
+                        {project.label}
+                      </option>
+                    ))}
+                  </select>
+                </li>
 
-              <li className="flex flex-col">
-                <label
-                  htmlFor="teams"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block text-sm font-medium
-                    w-full
-                    max-w-60
-                    mb-3
-                    text-gray-900`}
-                >
-                  Equipos Involucrados*
-                </label>
+                <li>Fecha de inicio</li>
+                <li>Fecha de fin </li>
 
-                <MultiSelect
-                  className="w-full"
-                  required
-                  options={teams}
-                  placeholder="Seleccionar equipos"
-                  value={formik.values.teams}
-                  onChange={(value) => formik.setFieldValue("teams", value)}
-                  error={formik.errors.teams}
-                  labelledBy="Select"
-                />
-              </li>
+                {/* <li className="flex items-center">
+                  <label
+                    htmlFor="date"
+                    className={`
+                      ${libre_franklin600.className} 
+                      block text-sm font-medium
+                      w-full
+                      max-w-60
+                      text-gray-900`}
+                  >
+                    Trimestre*
+                  </label>
+                  <select
+                    value={formik.values.date}
+                    onChange={formik.handleChange}
+                    error={formik.errors.date}
+                    required
+                    id="date"
+                    className="
+                      bg-gray-50 
+                      border 
+                      border-gray-300 
+                      text-gray-900 
+                      text-sm rounded-lg 
+                      focus:ring-blue-500 
+                      focus:border-blue-500 
+                      block w-full p-2.5"
+                  >
+                    <option value="">Seleccionar Fecha</option>
+                    {dates.map((date) => (
+                      <option key={date.value} value={date.value}>
+                        {date.label}
+                      </option>
+                    ))}
+                  </select>
+                </li> */}
 
-              <li className="flex items-center">
-                <label
-                  htmlFor="date"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block text-sm font-medium
-                    w-full
-                    max-w-60
-                    text-gray-900`}
-                >
-                  Trimestre*
-                </label>
-                <select
-                  value={formik.values.date}
-                  onChange={formik.handleChange}
-                  error={formik.errors.date}
-                  required
-                  id="date"
-                  className="
-                    bg-gray-50 
-                    border 
-                    border-gray-300 
-                    text-gray-900 
-                    text-sm rounded-lg 
-                    focus:ring-blue-500 
-                    focus:border-blue-500 
-                    block w-full p-2.5"
-                >
-                  <option value="">Seleccionar Fecha</option>
-                  {dates.map((date) => (
-                    <option key={date.value} value={date.value}>
-                      {date.label}
-                    </option>
-                  ))}
-                </select>
-              </li>
+                {/* <li className="flex items-center">
+                  <label
+                    htmlFor="scope"
+                    className={`
+                      ${libre_franklin600.className} 
+                      block text-sm font-medium
+                      w-full
+                      max-w-60
+                      text-gray-900`}
+                  >
+                    Amplitud*
+                  </label>
 
-              <li className="flex items-center">
-                <label
-                  htmlFor="scope"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block text-sm font-medium
-                    w-full
-                    max-w-60
-                    text-gray-900`}
-                >
-                  Amplitud*
-                </label>
+                  <select
+                    value={formik.values.scope}
+                    onChange={formik.handleChange}
+                    error={formik.errors.scope}
+                    required
+                    id="scope"
+                    className="
+                      bg-gray-50 
+                      border 
+                      border-gray-300 
+                      text-gray-900 
+                      text-sm rounded-lg 
+                      focus:ring-blue-500 
+                      focus:border-blue-500 
+                      block w-full p-2.5"
+                  >
+                    <option value="">Seleccionar Amplitud</option>
+                    {scopes.map((scope) => (
+                      <option key={scope.value} value={scope.value}>
+                        {scope.label}
+                      </option>
+                    ))}
+                  </select>
+                </li> */}
+              </ul>
+              <ul className="flex flex-col gap-6">
+                <li className="flex gap-4">
+                  <label htmlFor="teams" className="flex flex-col w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Áreas involucradas:
+                    </span>
+                    <span className="text-xs font-regular">
+                      Areas que participan
+                    </span>
+                  </label>
 
-                <select
-                  value={formik.values.scope}
-                  onChange={formik.handleChange}
-                  error={formik.errors.scope}
-                  required
-                  id="scope"
-                  className="
-                    bg-gray-50 
-                    border 
-                    border-gray-300 
-                    text-gray-900 
-                    text-sm rounded-lg 
-                    focus:ring-blue-500 
-                    focus:border-blue-500 
-                    block w-full p-2.5"
-                >
-                  <option value="">Seleccionar Amplitud</option>
-                  {scopes.map((scope) => (
-                    <option key={scope.value} value={scope.value}>
-                      {scope.label}
-                    </option>
-                  ))}
-                </select>
-              </li>
+                  <MultiSelect
+                    className="w-full"
+                    required
+                    options={teams}
+                    placeholder="Seleccionar equipos"
+                    value={formik.values.teams}
+                    onChange={(value) => formik.setFieldValue("teams", value)}
+                    error={formik.errors.teams}
+                    labelledBy="Select"
+                  />
+                </li>
 
-              <li className="flex items-center">
-                <label
-                  htmlFor="status"
-                  className={`
-                    ${libre_franklin600.className} 
-                    block text-sm font-medium
-                    w-full
-                    max-w-60
-                    text-gray-900`}
-                >
-                  Estado*
-                </label>
-                <select
-                  value={formik.values.status}
-                  onChange={formik.handleChange}
-                  error={formik.errors.status}
-                  required
-                  id="status"
-                  className="
-                    bg-gray-50 
-                    border 
-                    border-gray-300 
-                    text-gray-900 
-                    text-sm rounded-lg 
-                    focus:ring-blue-500 
-                    focus:border-blue-500 
-                    block w-full p-2.5"
-                >
-                  {status.map((state) => (
-                    <option key={state.value} value={state.value}>
-                      {state.label}
-                    </option>
-                  ))}
-                </select>
-              </li>
-            </ul>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="status" className="flex flex-col w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Estado:
+                    </span>
+                    <span className="text-xs font-regular">
+                      Estado de la investigación
+                    </span>
+                  </label>
+                  <select
+                    value={formik.values.status}
+                    onChange={formik.handleChange}
+                    error={formik.errors.status}
+                    required
+                    id="status"
+                    className="
+                      bg-gray-50 
+                      border 
+                      border-gray-300 
+                      text-gray-900 
+                      text-sm rounded-lg 
+                      focus:ring-blue-500 
+                      focus:border-blue-500 
+                      block w-full p-2.5"
+                  >
+                    {status.map((state) => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
+                  </select>
+                </li>
+
+                <li className="flex gap-4">
+                  <label
+                    className="flex flex-col w-80"
+                    htmlFor="investigation_types"
+                  >
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Metodologías:
+                    </span>
+                    <span className="text-xs font-regular">
+                      Tipo de investigación
+                    </span>
+                  </label>
+                  <MultiSelect
+                    className="w-full"
+                    options={investigationTypes}
+                    value={formik.values.investigation_types}
+                    onChange={(value) =>
+                      formik.setFieldValue("investigation_types", value)
+                    }
+                    error={formik.errors.investigation_types}
+                    labelledBy="Select"
+                  />
+                </li>
+
+                <li className="flex gap-4">
+                  <label className="flex flex-col w-80" htmlFor="researchers">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Researchers:
+                    </span>
+                    <span className="text-xs font-regular">
+                      Principales responsables
+                    </span>
+                  </label>
+                  <MultiSelect
+                    className="w-full"
+                    options={researchers}
+                    value={formik.values.researchers}
+                    onChange={(value) =>
+                      formik.setFieldValue("researchers", value)
+                    }
+                    error={formik.errors.researchers}
+                    labelledBy="Select"
+                  />
+                </li>
+
+                <li className="flex gap-4">
+                  <label className="flex flex-col w-80" htmlFor="researchers">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Extended Team:
+                    </span>
+                    <span className="text-xs font-regular">
+                      Personas involucradas
+                    </span>
+                  </label>
+                  <MultiSelect
+                    className="w-full"
+                    options={researchers}
+                    value={formik.values.researchers}
+                    onChange={(value) =>
+                      formik.setFieldValue("researchers", value)
+                    }
+                    error={formik.errors.researchers}
+                    labelledBy="Select"
+                  />
+                </li>
+              </ul>
+            </div>
           </div>
           <div className="border border-gray-200 rounded-xl p-6">
             <h4
@@ -460,10 +589,10 @@ export function InvestigationForm({ params, title }) {
                 </label>
                 <input
                   type="file"
-                  id="guide_media"
+                  id="guide_media_link"
                   onChange={(event) => {
                     formik.setFieldValue(
-                      "guide_media",
+                      "guide_media_link",
                       event.currentTarget.files[0]
                     );
                   }}
@@ -493,25 +622,6 @@ export function InvestigationForm({ params, title }) {
                   value={formik.values.publics}
                   onChange={(value) => formik.setFieldValue("publics", value)}
                   error={formik.errors.publics}
-                  labelledBy="Select"
-                />
-              </li>
-
-              <li className="flex flex-col">
-                <label
-                  htmlFor="investigation_types"
-                  className="block text-sm font-medium text-gray-900 w-full mb-3"
-                >
-                  Tipos de investigación:
-                </label>
-                <MultiSelect
-                  className="w-full"
-                  options={investigationTypes}
-                  value={formik.values.investigation_types}
-                  onChange={(value) =>
-                    formik.setFieldValue("investigation_types", value)
-                  }
-                  error={formik.errors.investigation_types}
                   labelledBy="Select"
                 />
               </li>
@@ -548,25 +658,6 @@ export function InvestigationForm({ params, title }) {
                   value={formik.values.locations}
                   onChange={(value) => formik.setFieldValue("locations", value)}
                   error={formik.errors.locations}
-                  labelledBy="Select"
-                />
-              </li>
-
-              <li className="flex flex-col">
-                <label
-                  htmlFor="researchers"
-                  className="block text-sm font-medium text-gray-900 w-full mb-3"
-                >
-                  Responsables:
-                </label>
-                <MultiSelect
-                  className="w-full"
-                  options={researchers}
-                  value={formik.values.researchers}
-                  onChange={(value) =>
-                    formik.setFieldValue("researchers", value)
-                  }
-                  error={formik.errors.researchers}
                   labelledBy="Select"
                 />
               </li>

@@ -214,6 +214,22 @@ export default function InvestigationSlugComponent({ params }) {
                   <p>No hay guía</p>
                 )}
               </li>
+              <li className="flex gap-4">
+                <label className="block mb-3 text-sm font-medium text-gray-900">
+                  Guía adjunta link:
+                </label>
+                {investigation?.guide_media_link ? (
+                  <a
+                    className="text-sm text-blue-500 hover:underline"
+                    target="_blank"
+                    href={investigation?.guide_media_link}
+                  >
+                    {investigation?.guide_media_link}
+                  </a>
+                ) : (
+                  <p>No hay guía</p>
+                )}
+              </li>
             </ul>
           </div>
         </div>
