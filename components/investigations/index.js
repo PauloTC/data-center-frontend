@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import classNames from "classnames";
+import { format } from "date-fns";
 
 import "./styles.scss";
 
@@ -118,19 +119,7 @@ export default function InvestigationsComponent() {
                 </div>
 
                 <div className="flex mb-3 items-center">
-                  {/* <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    className="w-4 h-4"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-                      clipRule="evenodd"
-                    />
-                  </svg> */}
-                  <div className="flex gap-2">
+                  {/* <div className="flex gap-2">
                     {map(
                       investigation.attributes.locations.data,
                       (location, index) => (
@@ -142,10 +131,10 @@ export default function InvestigationsComponent() {
                         </span>
                       )
                     )}
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-3">
+                {/* <div className="flex flex-wrap gap-2 mb-3">
                   {map(investigation.attributes.publics.data, (item, index) => (
                     <span
                       key={index}
@@ -154,13 +143,18 @@ export default function InvestigationsComponent() {
                       {item.attributes.name}
                     </span>
                   ))}
-                </div>
+                </div> */}
 
                 <div className="flex justify-between items-center">
                   <span
                     className={`${libre_franklin500.className} text-xs block mb-2`}
                   >
-                    {investigation.attributes.date}
+                    <strong>Inicio:{"  "}</strong>
+                    {investigation?.attributes?.initial_date &&
+                      format(
+                        new Date(investigation?.attributes?.initial_date),
+                        "dd/MM/yy"
+                      )}
                   </span>
                   <span
                     className={classNames(
@@ -186,49 +180,49 @@ export default function InvestigationsComponent() {
                 </div>
               </div>
               <div className="flex flex-col pt-3 ">
-                <div className="flex items-center">
-                  <span
-                    className={`${libre_franklin700.className} capitalize text-md block w-full`}
-                  >
-                    {investigation.attributes.project}
-                  </span>
-                  <ul className="flex items-center investigations-researchers justify-between grow relative w-40">
-                    {investigation.attributes.researchers.data.map(
-                      (researcher, index) => {
-                        return (
-                          <li
-                            className="investigations-researcher relative border-2 border-white"
-                            key={index}
-                          >
-                            <Image
-                              src={
-                                researcher.attributes.photo.data[0].attributes
-                                  .url
-                              }
-                              alt={
-                                researcher.attributes.photo.data[0].attributes
-                                  .name
-                              }
-                              width={40}
-                              height={40}
-                              className="rounded-full"
-                            />
-                          </li>
-                        );
-                      }
-                    )}
+                <span
+                  className={`${libre_franklin700.className} capitalize text-md block w-full`}
+                >
+                  {investigation.attributes.project}
+                </span>
+                <ul className="flex items-center investigations-researchers justify-between grow relative w-40">
+                  {investigation.attributes.researchers.data.map(
+                    (researcher, index) => {
+                      return (
+                        <li
+                          className="
+                            investigations-researcher 
+                            relative border-2 border-white
+                            rounded-full"
+                          key={index}
+                        >
+                          <Image
+                            src={
+                              researcher.attributes.photo.data[0].attributes.url
+                            }
+                            alt={
+                              researcher.attributes.photo.data[0].attributes
+                                .name
+                            }
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                          />
+                        </li>
+                      );
+                    }
+                  )}
 
-                    {/* <li className="border-2 border-white relative rounded-full">
-                      <img
-                        alt="avatar"
-                        className="rounded-full"
-                        width={40}
-                        height={40}
-                        src="https://res.cloudinary.com/freelancepaulo/image/upload/v1630075868/small_Person_Curtis_4x5_e1564616444404_156b10afd7.jpg"
-                      />
-                    </li> */}
-                  </ul>
-                </div>
+                  {/* <li className="border-2 border-white relative rounded-full">
+                    <img
+                      alt="avatar"
+                      className="rounded-full"
+                      width={40}
+                      height={40}
+                      src="https://res.cloudinary.com/freelancepaulo/image/upload/v1630075868/small_Person_Curtis_4x5_e1564616444404_156b10afd7.jpg"
+                    />
+                  </li> */}
+                </ul>
               </div>
             </Link>
           ))}

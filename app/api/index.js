@@ -8,3 +8,5 @@ export * from "./team";
 export * from "./public";
 export * from "./type";
 export * from "./researcher";
+export * from "./material";
+export * from "./location";

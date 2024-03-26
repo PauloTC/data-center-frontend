@@ -5,6 +5,7 @@ import { libre_franklin700, libre_franklin600 } from "@/app/fonts";
 import Image from "next/image";
 import { Investigation } from "@/app/api";
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import classNames from "classnames";
 
 export default function InvestigationSlugComponent({ params }) {
@@ -54,12 +55,380 @@ export default function InvestigationSlugComponent({ params }) {
 
         <button
           href={`/investigations/${params.slug}/edit`}
-          className="disabled text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center"
+          className="disabled text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-full text-sm px-5 py-2.5 text-center"
         >
           Editar
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div>
+        <div className="flex flex-col gap-4">
+          <div className="border border-gray-200 rounded-xl p-6">
+            <h4 className={`${libre_franklin700.className} text-xl mb-4 flex`}>
+              Ficha Técnica
+            </h4>
+            <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
+              <ul className="flex flex-col gap-6">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Título de la investigación:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.name}
+                  </p>
+                </li>
+                <li className="flex gap-4 flex-col">
+                  <label className="flex w-80" htmlFor="description">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Contexto de investigación:
+                    </span>
+                  </label>
+                  <p className="text-sm w-full">{investigation?.description}</p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Proyecto:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.project}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Fecha de inicio:
+                    </span>
+                  </label>
+
+                  <p className="text-sm  w-full capitalize">
+                    {investigation?.initial_date &&
+                      format(new Date(investigation?.initial_date), "dd/MM/yy")}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Fecha de cierre:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.end_date &&
+                      format(new Date(investigation?.end_date), "dd/MM/yy")}
+                  </p>
+                </li>
+              </ul>
+              <ul className="flex flex-col gap-6 pl-6">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Áreas involucradas:
+                    </span>
+                  </label>
+
+                  <p className="text-sm  w-full capitalize">
+                    {investigation?.teams?.data
+                      .map((team) => team.attributes.name)
+                      .join(", ")}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Estado:
+                    </span>
+                  </label>
+
+                  <p className="text-sm  w-full capitalize">
+                    {investigation?.status}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Metodología:
+                    </span>
+                  </label>
+
+                  <p className="text-sm  w-full capitalize">
+                    {investigation?.investigation_types?.data
+                      .map((methodology) => methodology.attributes.name)
+                      .join(", ")}
+                  </p>
+                </li>
+                <li className="flex flex-col gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Researchers:
+                    </span>
+                  </label>
+
+                  <ul className="text-sm  w-full capitalize grid grid-cols-2">
+                    {investigation?.researchers.data.map(
+                      (researcher, index) => (
+                        <li className="flex gap-4 items-center" key={index}>
+                          <Image
+                            alt={
+                              researcher.attributes.photo?.data?.[0]?.attributes
+                                ?.name
+                            }
+                            src={
+                              researcher.attributes.photo?.data?.[0]?.attributes
+                                ?.url
+                            }
+                            width={30}
+                            height={30}
+                          />
+                          <span>{researcher.attributes.name}</span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </li>
+                <li className="flex flex-col gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Equipo extendido:
+                    </span>
+                  </label>
+
+                  <ul className="text-sm  w-full capitalize grid grid-cols-2">
+                    {investigation?.team_extended.data.map((team, index) => (
+                      <li className="flex gap-4 items-center" key={index}>
+                        <Image
+                          className="rounded-full"
+                          alt={
+                            team.attributes.photo?.data?.[0]?.attributes?.name
+                          }
+                          src={
+                            team.attributes.photo?.data?.[0]?.attributes?.url
+                          }
+                          width={30}
+                          height={30}
+                        />
+                        <span>{team.attributes.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border border-gray-200 rounded-xl p-6">
+              <h4
+                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+              >
+                Objetivo
+              </h4>
+              <ul className="flex flex-col gap-4">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Objetivo Principal:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.goal}
+                  </p>
+                </li>
+                <li className="flex gap-4 flex-col">
+                  <label className="flex w-80" htmlFor="description">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Objetivos Especificos:
+                    </span>
+                  </label>
+                  <p className="text-sm w-full">
+                    {investigation?.specific_goals}
+                  </p>
+                </li>
+              </ul>
+            </div>
+            <div className="border border-gray-200 rounded-xl p-6">
+              <h4
+                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+              >
+                Presentación
+              </h4>
+              <ul className="flex flex-col gap-6">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Archivo adjunto:
+                    </span>
+                  </label>
+
+                  <a
+                    href={investigation?.guide_media_link}
+                    className="text-sm w-full capitalize text-blue-600 hover:underline"
+                  >
+                    Descargar aquí
+                  </a>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      A quién se presentó:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.presented_to}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Fecha de Presentación:
+                    </span>
+                  </label>
+
+                  <p className="text-sm  w-full capitalize">
+                    {investigation?.initial_date &&
+                      format(
+                        new Date(investigation?.presented_date),
+                        "dd/MM/yy"
+                      )}
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {investigation?.materials.data.map((material, index) => (
+            <div key={index} className="border border-gray-200 rounded-xl p-6">
+              <h4 className={`${libre_franklin700.className} text-xl mb-4`}>
+                Material de
+                {" " +
+                  investigation?.investigation_types?.data[index]?.attributes
+                    .name}
+              </h4>
+              <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
+                <ul className="flex flex-col gap-4">
+                  <li className="flex items-center gap-4">
+                    <label htmlFor="name" className="w-80">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Público objetivo:
+                      </span>
+                    </label>
+
+                    <p className="text-sm  w-full capitalize">
+                      {material?.attributes?.publics?.data
+                        .map((item) => item.attributes.name)
+                        .join(", ")}
+                    </p>
+                  </li>
+                  <li className="flex gap-4 flex-col">
+                    <label className="flex w-80" htmlFor="description">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Muestra:
+                      </span>
+                    </label>
+                    <div className="text-sm w-full">
+                      {material.attributes.sample
+                        .split("\n")
+                        .map((line, index) => (
+                          <p key={index}>
+                            {line}
+                            <br />
+                          </p>
+                        ))}
+                    </div>
+                  </li>
+                </ul>
+                <ul className="flex flex-col gap-4 pl-6">
+                  <li className="flex items-center gap-4">
+                    <label htmlFor="name" className="w-80">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Ámbito geográfico:
+                      </span>
+                    </label>
+
+                    <p className="text-sm  w-full capitalize">
+                      {material?.attributes?.locations?.data
+                        .map((item) => item.attributes.name)
+                        .join(", ")}
+                    </p>
+                  </li>
+                  <li className="flex items-center gap-4">
+                    <label htmlFor="name" className="w-80">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Herramienta:
+                      </span>
+                    </label>
+
+                    <p className="text-sm w-full capitalize">
+                      {material.attributes.tool}
+                    </p>
+                  </li>
+                  <li className="flex items-center gap-4">
+                    <label htmlFor="name" className="w-80">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Herramienta adjunta:
+                      </span>
+                    </label>
+
+                    <a
+                      href={material.attributes.tool_media}
+                      className="text-sm w-full capitalize text-blue-600 hover:underline"
+                    >
+                      Descargar aquí
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-4">
           <div className="border border-gray-200 rounded-xl p-6">
             <h4 className={`${libre_franklin700.className} text-xl mb-4`}>
@@ -128,18 +497,7 @@ export default function InvestigationSlugComponent({ params }) {
                   >
                     Fecha:
                   </label>
-                  <p className="text-sm grow">{investigation?.date}</p>
-                </div>
-                <div className="flex">
-                  <label
-                    htmlFor="scope"
-                    className="text-sm font-medium text-gray-900 w-full max-w-60"
-                  >
-                    Amplitud:
-                  </label>
-                  <p className="text-sm capitalize grow">
-                    {investigation?.scope}
-                  </p>
+                  <p className="text-sm grow">{investigation?.initial_date}</p>
                 </div>
                 <div className="flex  items-center">
                   <label
@@ -215,7 +573,7 @@ export default function InvestigationSlugComponent({ params }) {
                 )}
               </li>
               <li className="flex gap-4">
-                <label className="block mb-3 text-sm font-medium text-gray-900">
+                <label className="block mb-3 text-sm font-medium text-gray-900 w-80">
                   Guía adjunta link:
                 </label>
                 {investigation?.guide_media_link ? (
@@ -224,7 +582,7 @@ export default function InvestigationSlugComponent({ params }) {
                     target="_blank"
                     href={investigation?.guide_media_link}
                   >
-                    {investigation?.guide_media_link}
+                    Descargar Guía aquí
                   </a>
                 ) : (
                   <p>No hay guía</p>
@@ -414,7 +772,7 @@ export default function InvestigationSlugComponent({ params }) {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

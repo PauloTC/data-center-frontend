@@ -9,6 +9,7 @@ import { ENV } from "@/utils/constants";
 export default function SidebarComponent() {
   const { user, updateUser } = useAuth();
 
+  console.log(user);
   const updateUserDemo = () => {
     updateUser("username", "pepito");
   };
@@ -90,7 +91,13 @@ export default function SidebarComponent() {
         data-drawer-toggle="sidebar-multi-level-sidebar"
         aria-controls="sidebar-multi-level-sidebar"
         type="button"
-        className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        className="
+          inline-flex items-center 
+          p-2 mt-2 ms-3 text-sm 
+          text-gray-500 rounded-lg 
+          sm:hidden hover:bg-gray-100 
+          focus:outline-none focus:ring-2 
+          focus:ring-gray-200"
       >
         <span className="sr-only">Open sidebar</span>
         <svg
@@ -110,10 +117,15 @@ export default function SidebarComponent() {
 
       <aside
         id="sidebar-multi-level-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        className="
+          fixed top-0 left-0 
+          z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <div className="flex-col h-full px-3 py-4 overflow-y-auto bg-gray-900 flex items-center">
+        <div
+          className="
+          flex-col h-full px-3 py-4 overflow-y-auto bg-gray-900 flex items-center"
+        >
           {/* <div className="h-20"> */}
           <figure className="flex flex-col items-center mb-10">
             <Image
@@ -132,9 +144,12 @@ export default function SidebarComponent() {
               >
                 {user?.firstname} {user?.lastname}
               </p>
-              <span className={`${libre_franklin500.className} text-sm`}>
-                {user?.email}
-              </span>
+              <p
+                className={`${libre_franklin500.className} text-sm capitalize`}
+              >
+                {user?.position}
+              </p>
+              {/* <span className="text-white">{user?.position}</span> */}
             </figcaption>
           </figure>
           {/* </div> */}
@@ -147,15 +162,11 @@ export default function SidebarComponent() {
                     className={`
                       flex 
                       items-center 
-                      p-2 text-gray-900 
+                      p-2
                       rounded-lg 
-                      dark:text-white 
-                      hover:bg-gray-100 dark:hover:bg-gray-700 group
-                    ${
-                      pathname === link.href
-                        ? "bg-gray-100 dark:bg-gray-700"
-                        : ""
-                    }
+                      text-white 
+                      hover:bg-gray-700 group
+                    ${pathname === link.href ? "bg-gray-700" : ""}
                     `}
                   >
                     <span
