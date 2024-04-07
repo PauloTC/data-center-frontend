@@ -6,14 +6,16 @@ import "./styles.scss";
 export default function LoginPage() {
   return (
     <section className="flex">
-      <div className="relative login-image flex justify-center items-center">
-        <Image
-          className="min-h-screen w-full"
-          alt="cover-image"
-          width={1000}
-          height={800}
-          src="/cover.jpg"
-        />
+      <div className="flex min-h-screen justify-between w-full bg-red-600 overflow-hidden">
+        <div className="self-end w-4/6">
+          <Image
+            className=""
+            src="/team.png"
+            alt="team"
+            height={900}
+            width={600}
+          />
+        </div>
         <LoginForm />
       </div>
     </section>

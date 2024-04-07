@@ -33,7 +33,7 @@ export default function LoginForm() {
   // }
 
   return (
-    <div className="absolute w-2/6 right-0 min-h-screen flex items-center justify-center p-4 bg-white sm:p-6 md:p-8">
+    <div className="w-2/6 right-0 min-h-screen flex items-center justify-center p-4 bg-white sm:p-6 md:p-8">
       <form onSubmit={formik.handleSubmit} className="space-y-6 w-4/5">
         <h5 className="text-xl font-medium text-gray-900">
           Ingresar a tu cuenta
@@ -98,9 +98,15 @@ export default function LoginForm() {
         </div>
         <button
           type="submit"
-          className="w-full text-white bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          className="
+            w-full text-white 
+            bg-blue-700 hover:bg-blue-800 
+            focus:ring-2 focus:outline-none 
+            focus:ring-blue-300 font-medium 
+            rounded-lg text-sm px-5 py-2.5 text-center
+            transition-all"
         >
-          Login to your account
+          Acceder a tu cuenta
         </button>
         <div className="text-sm font-medium text-gray-500">
           No registrado?{" "}

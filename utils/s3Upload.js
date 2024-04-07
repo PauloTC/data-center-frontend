@@ -9,7 +9,7 @@ AWS.config.update({
 const s3 = new AWS.S3();
 
 // Función para subir un archivo a S3
-export async function uploadToS3(file) {
+export async function uploadToS3(file, onUploadStatusChange) {
   const params = {
     Bucket: "data-center-strapi",
     Key: file.name, // Nombre del archivo en tu bucket S3
@@ -19,11 +19,21 @@ export async function uploadToS3(file) {
   };
 
   try {
+    // Comenzar la carga
+    onUploadStatusChange(true);
+
     const data = await s3.upload(params).promise();
     console.log(`Archivo subido exitosamente en ${data.Location}`);
+
+    // Finalizar la carga
+    onUploadStatusChange(false);
     return data.Location;
   } catch (error) {
     console.log("Error al subir el archivo:", error);
+
+    // Finalizar la carga en caso de error
+    onUploadStatusChange(false);
+
     throw error;
   }
 }

@@ -10,3 +10,4 @@ export * from "./type";
 export * from "./researcher";
 export * from "./material";
 export * from "./location";
+export * from "./project";

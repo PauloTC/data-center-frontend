@@ -104,8 +104,6 @@ export default function DashboardComponent() {
               {dataValues.map((data, index) => {
                 const sum = data.reduce((total, d) => total + d.value, 0);
 
-                console.log(sum);
-
                 return (
                   <div className="flex items-center relative self-start  cursor-pointer">
                     <li

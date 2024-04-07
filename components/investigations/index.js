@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Investigation } from "@/app/api";
+import { Investigation, Project, Public } from "@/app/api";
 import { map } from "lodash";
 import {
   libre_franklin600,
@@ -16,21 +16,90 @@ import { format } from "date-fns";
 import "./styles.scss";
 
 const investigationCtrl = new Investigation();
+const projectCtrl = new Project();
+const publicCtrl = new Public();
 
 export default function InvestigationsComponent() {
   const [investigations, setInvestigations] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [filterPublics, setFilterPublics] = useState([]);
+  const [filters, setFilters] = useState({
+    project: "Todos",
+    objectivePublic: "Todos",
+    sort: "desc",
+  });
+
+  const sortOptions = [
+    { value: "desc", label: "Más Actual" },
+    { value: "asc", label: "Más Antiguo" },
+  ];
 
   useEffect(() => {
     (async () => {
       try {
         const response = await investigationCtrl.getInvestigations();
+        const responseProjects = await projectCtrl.getProjects();
+        const responsePublics = await publicCtrl.getPublics();
+
+        // Agregar la opción "Todos" al inicio del array de proyectos
+        const projectsWithAllOption = [
+          { attributes: { name: "Todos", alias: "Todos" } },
+          ...responseProjects?.data,
+        ];
+
+        // Agregar la opción "Todos" al inicio del array de públicos
+        const publicsWithAllOption = [
+          { attributes: { name: "Todos", alias: "Todos" } },
+          ...responsePublics?.data,
+        ];
+
         setInvestigations(response.data);
-        console.log(response.data);
+        setProjects(projectsWithAllOption);
+        setFilterPublics(publicsWithAllOption);
       } catch (error) {
         console.log("error", error);
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (filters.project || filters.objectivePublic || filters.sort) {
+        try {
+          let responseInvestigations;
+
+          if (
+            filters.project === "Todos" &&
+            filters.objectivePublic === "Todos" &&
+            filters.sort === "desc"
+          ) {
+            const response = await investigationCtrl.getInvestigations();
+            responseInvestigations = response.data;
+          } else {
+            const response = await investigationCtrl.filterInvestigations({
+              project: filters.project === "Todos" ? "" : filters.project,
+              objectivePublic:
+                filters.objectivePublic === "Todos"
+                  ? ""
+                  : filters.objectivePublic,
+              sort: filters.sort,
+            });
+            responseInvestigations = response.data;
+          }
+
+          console.log("responseInvestigations", responseInvestigations);
+
+          setInvestigations(responseInvestigations);
+        } catch (error) {
+          console.log("error", error);
+        }
+      }
+    })();
+  }, [filters]);
+
+  const handleFilterClick = async (type, value) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [type]: value }));
+  };
 
   return (
     <section>
@@ -41,7 +110,7 @@ export default function InvestigationsComponent() {
           >
             Investigaciones
           </h4>
-          <ul className="flex flex-wrap gap-1 mb-6 ml-6">
+          {/* <ul className="flex flex-wrap gap-1 mb-6 ml-6">
             <li>
               <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
                 Todos
@@ -67,7 +136,7 @@ export default function InvestigationsComponent() {
                 Web de clientes
               </span>
             </li>
-          </ul>
+          </ul> */}
         </div>
         <div>
           <Link
@@ -90,142 +159,197 @@ export default function InvestigationsComponent() {
               me-2 mb-2 
               "
           >
-            Agregar
+            Agregar Investigación
           </Link>
         </div>
       </div>
       <div className="flex gap-4">
-        <ul className={`grid grid-cols-3 gap-4 w-3/4`}>
-          {map(investigations, (investigation) => (
-            <Link
-              href={`/investigations/${investigation.attributes.slug}`}
-              key={investigation.id}
-              className="
-                border border-gray-200 
-                rounded-lg p-5 box-border 
-                divide-y self-start
-                divide-gray-300 justify-between 
-                hover:shadow-md transition-all 
-                duration-300 ease-in-out cursor-pointer"
-            >
-              <div>
-                <div className="mb-3">
-                  <h4
-                    title={investigation.attributes.name}
-                    className={`${libre_franklin500.className} text-slate-800 text-sm`}
-                  >
-                    {investigation.attributes.name}
-                  </h4>
-                </div>
+        <ul className="grid grid-cols-3 gap-4 w-3/4 self-start">
+          {map(investigations, (investigation) => {
+            let locationNames =
+              investigation.attributes?.materials?.data.flatMap((material) =>
+                material.attributes.locations.data.map(
+                  (location) => location.attributes.name
+                )
+              );
 
-                <div className="flex mb-3 items-center">
-                  {/* <div className="flex gap-2">
-                    {map(
-                      investigation.attributes.locations.data,
-                      (location, index) => (
-                        <span
-                          key={index}
-                          className="text-xs align-center flex border px-2 rounded-md"
-                        >
-                          {location.attributes.name}
-                        </span>
-                      )
-                    )}
-                  </div> */}
-                </div>
+            let publics = investigation.attributes?.materials?.data.flatMap(
+              (material) =>
+                material.attributes.publics.data.map(
+                  (publicName) => publicName.attributes.name
+                )
+            );
 
-                {/* <div className="flex flex-wrap gap-2 mb-3">
-                  {map(investigation.attributes.publics.data, (item, index) => (
-                    <span
-                      key={index}
-                      className={`${libre_franklin600.className} text-xs capitalize`}
-                    >
-                      {item.attributes.name}
-                    </span>
-                  ))}
-                </div> */}
+            //removing duplicates
+            publics = [...new Set(publics)];
 
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`${libre_franklin500.className} text-xs block mb-2`}
-                  >
-                    <strong>Inicio:{"  "}</strong>
-                    {investigation?.attributes?.initial_date &&
-                      format(
-                        new Date(investigation?.attributes?.initial_date),
-                        "dd/MM/yy"
-                      )}
-                  </span>
-                  <span
-                    className={classNames(
-                      `${libre_franklin600.className}`,
-                      "rounded-lg",
-                      "text-xs",
-                      "block",
-                      "mb-2",
-                      "capitalize",
-                      "text-white",
-                      "px-3",
-                      "py-1",
-                      {
-                        "bg-stone-600":
-                          investigation.attributes.status === "finalizado",
-                        "bg-green-600":
-                          investigation.attributes.status === "en curso",
-                      }
-                    )}
-                  >
-                    {investigation.attributes.status}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col pt-3 ">
-                <span
-                  className={`${libre_franklin700.className} capitalize text-md block w-full`}
+            locationNames = locationNames?.map((name) =>
+              name === "Lima" ? "Lima" : "Provincia"
+            );
+
+            locationNames = [...new Set(locationNames)];
+
+            locationNames.sort((a, b) =>
+              a === "Lima" ? -1 : b === "Lima" ? 1 : 0
+            );
+
+            return (
+              <li
+                className="
+                    border border-gray-200 
+                    rounded-lg p-5 box-border
+                    self-start
+                    justify-between 
+                    hover:shadow-md transition-all 
+                    duration-300 ease-in-out cursor-pointer"
+                key={investigation?.id}
+              >
+                <Link
+                  className="divide-y divide-gray-300 "
+                  href={`/investigations/${investigation?.attributes?.slug}`}
                 >
-                  {investigation.attributes.project}
-                </span>
-                <ul className="flex items-center investigations-researchers justify-between grow relative w-40">
-                  {investigation.attributes.researchers.data.map(
-                    (researcher, index) => {
-                      return (
-                        <li
-                          className="
-                            investigations-researcher 
-                            relative border-2 border-white
-                            rounded-full"
-                          key={index}
-                        >
-                          <Image
-                            src={
-                              researcher.attributes.photo.data[0].attributes.url
-                            }
-                            alt={
-                              researcher.attributes.photo.data[0].attributes
-                                .name
-                            }
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                          />
-                        </li>
-                      );
-                    }
-                  )}
+                  <div>
+                    <div className="mb-3">
+                      <h4
+                        title={investigation?.attributes?.name}
+                        className={`${libre_franklin500.className} capitalize min-h-10 text-slate-800 text-sm`}
+                      >
+                        {investigation?.attributes?.name}
+                      </h4>
+                    </div>
 
-                  {/* <li className="border-2 border-white relative rounded-full">
-                    <img
-                      alt="avatar"
-                      className="rounded-full"
-                      width={40}
-                      height={40}
-                      src="https://res.cloudinary.com/freelancepaulo/image/upload/v1630075868/small_Person_Curtis_4x5_e1564616444404_156b10afd7.jpg"
-                    />
-                  </li> */}
-                </ul>
-              </div>
-            </Link>
-          ))}
+                    <div className="flex mb-3 min-h-4 items-center">
+                      <div className="flex gap-2 ">
+                        {locationNames.length ? (
+                          locationNames.map((name, index) => (
+                            <p
+                              key={index}
+                              className="text-xs align-center flex border px-2 rounded-md"
+                            >
+                              {name}
+                            </p>
+                          ))
+                        ) : (
+                          <p style={{ minHeight: 8 }}></p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 mb-3 min-h-4">
+                      {publics?.length > 0 &&
+                        publics?.slice(0, 2).map((publicItem, index) => (
+                          <span
+                            key={index}
+                            className={`${libre_franklin600.className} text-xs capitalize`}
+                          >
+                            {publicItem}
+                          </span>
+                        ))}
+
+                      {publics?.length > 2 && (
+                        <span
+                          className={`${libre_franklin600.className} text-xs capitalize`}
+                        >
+                          {`+ ${publics?.length - 2}`}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`${libre_franklin500.className} text-xs block mb-2`}
+                      >
+                        <strong>Inicio:{"  "}</strong>
+                        {investigation?.attributes?.initial_date &&
+                          format(
+                            new Date(investigation?.attributes?.initial_date),
+                            "dd/MM/yy"
+                          )}
+                      </span>
+                      <span
+                        className={classNames(
+                          `${libre_franklin600.className}`,
+                          "rounded-lg",
+                          "text-xs",
+                          "block",
+                          "mb-2",
+                          "capitalize",
+                          "text-white",
+                          "px-2",
+                          "py-1",
+                          {
+                            "bg-stone-600":
+                              investigation?.attributes?.status ===
+                              "finalizado",
+                            "bg-teal-600":
+                              investigation?.attributes?.status === "en curso",
+                            "bg-rose-600":
+                              investigation?.attributes?.status === "bloqueado",
+                            "bg-sky-600":
+                              investigation?.attributes?.status ===
+                              "por iniciar",
+                          }
+                        )}
+                      >
+                        {investigation?.attributes?.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex pt-2 ">
+                    <p
+                      className={`${libre_franklin700.className} h-12 flex items-center capitalize text-md w-full`}
+                    >
+                      {
+                        investigation?.attributes?.project?.data?.attributes
+                          .name
+                      }
+                    </p>
+                    <ul className="flex items-center investigations-researchers justify-between grow relative w-40">
+                      {investigation?.attributes?.researchers.data
+                        .slice(0, 2)
+                        .map((researcher, index) => {
+                          return (
+                            <li
+                              className="
+                                investigations-researcher 
+                                relative border-2 border-white
+                                rounded-full"
+                              key={index}
+                            >
+                              <Image
+                                src={
+                                  researcher.attributes.photo.data[0].attributes
+                                    .url
+                                }
+                                alt={
+                                  researcher.attributes.photo.data[0].attributes
+                                    .name
+                                }
+                                width={40}
+                                height={40}
+                                className="rounded-full"
+                              />
+                            </li>
+                          );
+                        })}
+                      {investigation?.attributes?.researchers.data.length >
+                        2 && (
+                        <li className="absolute right-0 bottom-0 w-8">
+                          <span
+                            className={`${libre_franklin600.className} rounded-md text-xs flex justify-center bg-stone-600 text-white`}
+                          >
+                            +{" "}
+                            {investigation?.attributes?.researchers.data
+                              .length - 2}{" "}
+                          </span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         <div className="w-1/4 border border-gray-200 rounded-xl p-6 self-start">
           <h3 className={`${libre_franklin600.className} block text-lg mb-5`}>
@@ -233,41 +357,97 @@ export default function InvestigationsComponent() {
           </h3>
           <div>
             <h4 className={`${libre_franklin500.className} text-sm block mb-2`}>
-              Negocio
+              Ordenar por
             </h4>
             <ul className="flex flex-wrap gap-1 mb-6">
-              <li>
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  Todos
-                </span>
-              </li>
-              <li>
-                <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  B2B
-                </span>
-              </li>
-              <li>
-                <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  Dia Dia
-                </span>
-              </li>
-              <li>
-                <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  Nitro
-                </span>
-              </li>
-              <li>
-                <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  Mayoristas
-                </span>
-              </li>
-              <li>
-                <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-3 py-1 rounded-full">
-                  Transversal
-                </span>
-              </li>
+              {sortOptions.map((option, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => handleFilterClick("sort", option.value)}
+                    className={classNames(
+                      filters.sort === option.value
+                        ? "bg-blue-100"
+                        : "bg-gray-100",
+                      filters.sort === option.value
+                        ? "text-blue-800"
+                        : "text-gray-800",
+                      "text-xs",
+                      "font-medium",
+                      "me-2",
+                      "px-3",
+                      "py-1",
+                      "rounded-full"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                </li>
+              ))}
             </ul>
             <h4 className={`${libre_franklin500.className} text-sm block mb-2`}>
+              Proyecto
+            </h4>
+            <ul className="flex flex-wrap gap-1 mb-6">
+              {projects?.map((project, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() =>
+                      handleFilterClick("project", project.attributes.name)
+                    }
+                    className={classNames(
+                      filters.project === project.attributes.name
+                        ? "bg-blue-100"
+                        : "bg-gray-100",
+                      filters.project === project.attributes.name
+                        ? "text-blue-800"
+                        : "text-gray-800",
+                      "text-xs",
+                      "font-medium",
+                      "me-2",
+                      "px-3",
+                      "py-1",
+                      "rounded-full"
+                    )}
+                  >
+                    {project.attributes.alias}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <h4 className={`${libre_franklin500.className} text-sm block mb-2`}>
+              Público objetivo
+            </h4>
+            <ul className="flex flex-wrap gap-1 mb-6">
+              {filterPublics.map((publicItem, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() =>
+                      handleFilterClick(
+                        "objectivePublic",
+                        publicItem.attributes.name
+                      )
+                    }
+                    className={classNames(
+                      filters.objectivePublic === publicItem.attributes.name
+                        ? "bg-blue-100"
+                        : "bg-gray-100",
+                      filters.objectivePublic === publicItem.attributes.name
+                        ? "text-blue-800"
+                        : "text-gray-800",
+                      "text-xs",
+                      "font-medium",
+                      "me-2",
+                      "px-3",
+                      "py-1",
+                      "rounded-full"
+                    )}
+                  >
+                    {publicItem.attributes.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {/* <h4 className={`${libre_franklin500.className} text-sm block mb-2`}>
               Rol
             </h4>
             <ul className="flex flex-wrap gap-1 mb-6">
@@ -321,7 +501,7 @@ export default function InvestigationsComponent() {
                   LAVAN
                 </span>
               </li>
-            </ul>
+            </ul> */}
           </div>
         </div>
       </div>

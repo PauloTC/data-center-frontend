@@ -2,12 +2,18 @@
 import slugify from "slugify";
 import Link from "next/link";
 import { libre_franklin700, libre_franklin600 } from "@/app/fonts";
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
 import { MultiSelect } from "react-multi-select-component";
 
 import { Investigation } from "@/app/api";
-import { Team, InvestigationType, Researcher } from "@/app/api";
+import {
+  Material,
+  Team,
+  InvestigationType,
+  Researcher,
+  Project,
+} from "@/app/api";
 
 import { useFormik } from "formik";
 import { initialValues, validationSchema } from "./InvestigationForm.form";
@@ -16,16 +22,36 @@ import { format, parse } from "date-fns";
 import { MetodologiesForm } from "../MedologiesForm";
 import { uploadToS3 } from "@/utils";
 
+import PulseLoader from "react-spinners/PulseLoader";
+
 export function InvestigationForm({ params, title }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  //read investigation
+  const [investigation, setInvestigation] = useState({});
+  //create investigation
+  const [investigationResult, setInvestigationResult] = useState(null);
+  const [teams, setTeams] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [investigationTypes, setInvestigationTypes] = useState([]);
+  const [researchers, setResearchers] = useState([]);
+  const [extendedTeam, setExtendedTeam] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const investigationCtrl = new Investigation();
+  const investigationTypeCtrl = new InvestigationType();
+  const teamCtrl = new Team();
+  const researcherCtrl = new Researcher();
+  const projectCtrl = new Project();
+  const materialCtrl = new Material();
 
   const formik = useFormik({
-    initialValues: initialValues(),
+    initialValues: initialValues(investigation),
     validationSchema: validationSchema(),
     validateOnChange: false,
     onSubmit: async (formValues) => {
-      let guide_media_link;
+      console.log("formValues", formValues);
+
       try {
         const slug = slugify(formValues.name, { lower: true, strict: true });
         const teams = formValues.teams.map((team) => team.value);
@@ -51,53 +77,98 @@ export function InvestigationForm({ params, title }) {
           "yyyy-MM-dd"
         );
 
-        const presented_date = format(
-          parse(formValues.presented_date, "dd/MM/yyyy", new Date()),
-          "yyyy-MM-dd"
-        );
+        console.log("presented_date", formValues.presented_date);
+        const presented_date =
+          formValues.presented_date.length &&
+          formValues.presented_date.trim() !== ""
+            ? format(
+                parse(formValues.presented_date, "dd/MM/yyyy", new Date()),
+                "yyyy-MM-dd"
+              )
+            : null;
 
         const file = formValues.guide_media_link;
-        guide_media_link = await uploadToS3(file);
+        let guide_media_link = "";
 
-        let result = await investigationCtrl.createInvestigation({
-          ...formValues,
-          slug,
-          teams,
-          investigation_types,
-          researchers,
-          team_extended,
-          guide_media_link,
-          initial_date,
-          end_date,
-          presented_date,
-        });
+        if (file instanceof File) {
+          guide_media_link = await uploadToS3(file, setIsUploading);
+        }
 
-        const createdInvestigation = result;
-        setInvestigationResult(result);
+        console.log("guide_media_link", guide_media_link);
 
-        formik.handleReset();
+        if (investigation && investigation.id) {
+          const result = await investigationCtrl.updateInvestigation(
+            investigation.id,
+            {
+              ...formValues,
+              slug,
+              teams,
+              investigation_types,
+              researchers,
+              team_extended,
+              guide_media_link,
+              initial_date,
+              end_date,
+              presented_date,
+            }
+          );
 
-        createdInvestigation?.attributes.investigation_types?.data.length > 1
-          ? setStep(2)
-          : router.push("/investigations", { scroll: false });
+          setInvestigationResult(result);
+          formik.handleReset();
+          setStep(2);
+          return;
+        } else {
+          let result = await investigationCtrl.createInvestigation({
+            ...formValues,
+            slug,
+            teams,
+            investigation_types,
+            researchers,
+            team_extended,
+            guide_media_link,
+            initial_date,
+            end_date,
+            presented_date,
+          });
+
+          const createdInvestigation = result;
+          setInvestigationResult(result);
+          console.log("createdInvestigation", createdInvestigation);
+
+          createdInvestigation.attributes.investigation_types.data.map(
+            (type) => {
+              //create material
+              let material = {
+                publics: [],
+                slug: slugify(
+                  `${type.attributes.name}-${createdInvestigation.id}`,
+                  { lower: true, strict: true }
+                ),
+                sample: "",
+                locations: [],
+                tool: "",
+                tool_media: "",
+                investigation: createdInvestigation.id,
+              };
+              let response = materialCtrl.createMaterial(material);
+
+              console.log("materialResponse", response);
+            }
+          );
+
+          formik.handleReset();
+          createdInvestigation?.attributes.investigation_types?.data.length !==
+          0
+            ? setStep(2)
+            : router.push("/investigations", { scroll: false });
+        }
       } catch (error) {
         console.error(error);
       }
     },
   });
 
-  const investigationCtrl = new Investigation();
-  const investigationTypeCtrl = new InvestigationType();
-  const teamCtrl = new Team();
-  const researcherCtrl = new Researcher();
-
-  const [investigation, setInvestigation] = useState(null);
-  //create investigation
-  const [investigationResult, setInvestigationResult] = useState(null);
-  const [teams, setTeams] = useState([]);
-  const [investigationTypes, setInvestigationTypes] = useState([]);
-  const [researchers, setResearchers] = useState([]);
-  const [extendedTeam, setExtendedTeam] = useState([]);
+  const initialGuideMediaLinkRef = useRef();
 
   useEffect(() => {
     (async () => {
@@ -108,9 +179,13 @@ export function InvestigationForm({ params, title }) {
             params?.slug
           );
 
-          setInvestigation(response?.attributes);
+          setInvestigation(response);
+
+          initialGuideMediaLinkRef.current =
+            response.attributes.guide_media_link;
         }
 
+        const responseProjects = await projectCtrl.getProjects();
         const responseTeams = await teamCtrl.getTeams();
         const responseInvestigationTypes =
           await investigationTypeCtrl.getInvestigationTypes();
@@ -119,6 +194,13 @@ export function InvestigationForm({ params, title }) {
         );
         const responseExtendedTeam =
           await researcherCtrl.getResearchersOtherRole();
+
+        setProjects(
+          responseProjects.data.map((project) => ({
+            value: project.id,
+            label: project.attributes.name,
+          }))
+        );
 
         setTeams(
           responseTeams.data.map((team) => ({
@@ -153,20 +235,12 @@ export function InvestigationForm({ params, title }) {
     })();
   }, []);
 
-  const projects = [
-    { value: "dexarrollate", label: "Dexarrollate" },
-    { value: "diadia", label: "Diadía" },
-    { value: "diadia dex", label: "Diadía Dex" },
-    { value: "insuma", label: "Insuma" },
-    { value: "loyalty", label: "Loyalty" },
-    { value: "planeamiento financiero", label: "Planeamiento Financiero" },
-    { value: "web de clientes", label: "Web de Clientes" },
-    { value: "web del vendedor", label: "Web del Vendedor" },
-    { value: "nitro", label: "Nitro" },
-    { value: "propuesta valor B2B", label: "Propuesta Valor B2B" },
-    { value: "genia", label: "Genia" },
-    { value: "eficiencias", label: "Eficiencias" },
-  ];
+  useEffect(() => {
+    if (investigation) {
+      console.log(investigation, "investigation");
+      formik.resetForm({ values: initialValues(investigation) });
+    }
+  }, [investigation]);
 
   const status = [
     { value: "en curso", label: "En curso" },
@@ -177,6 +251,19 @@ export function InvestigationForm({ params, title }) {
 
   return (
     <div>
+      {isUploading && (
+        <div
+          className={`${libre_franklin600.className} 
+            gap-4
+            text-xl absolute top-0 right-0 bottom-0 
+            left-0 w-full h-screen bg-black/50 z-50
+            flex text-white flex-col justify-center
+            items-center
+          `}
+        >
+          <PulseLoader color="#fff" />
+        </div>
+      )}
       {step === 1 && (
         <form onSubmit={formik.handleSubmit}>
           <div className="flex justify-between items-center mb-6">
@@ -224,7 +311,7 @@ export function InvestigationForm({ params, title }) {
                 </h4>
                 <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
                   <ul className="flex flex-col gap-6">
-                    <li className="flex items-center gap-4">
+                    <li className="flex gap-4">
                       <label htmlFor="name" className="flex flex-col w-80">
                         <span
                           className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
@@ -237,7 +324,6 @@ export function InvestigationForm({ params, title }) {
                       </label>
 
                       <input
-                        defaultValue={investigation?.name}
                         value={formik.values.name}
                         onChange={formik.handleChange}
                         error={formik.errors.name}
@@ -278,7 +364,6 @@ export function InvestigationForm({ params, title }) {
                         value={formik.values.description}
                         onChange={formik.handleChange}
                         error={formik.errors.description}
-                        required
                       ></textarea>
                     </li>
 
@@ -298,6 +383,7 @@ export function InvestigationForm({ params, title }) {
                         onChange={formik.handleChange}
                         error={formik.errors.project}
                         required
+                        name="project"
                         id="project"
                         className="
                                 border 
@@ -388,7 +474,7 @@ export function InvestigationForm({ params, title }) {
                       </label>
 
                       <MultiSelect
-                        className="w-full"
+                        className="w-full text-sm"
                         required
                         options={teams}
                         placeholder="Seleccionar equipos"
@@ -450,7 +536,7 @@ export function InvestigationForm({ params, title }) {
                         </span>
                       </label>
                       <MultiSelect
-                        className="w-full"
+                        className="w-full text-sm"
                         options={investigationTypes}
                         value={formik.values.investigation_types}
                         onChange={(value) =>
@@ -476,7 +562,7 @@ export function InvestigationForm({ params, title }) {
                         </span>
                       </label>
                       <MultiSelect
-                        className="w-full"
+                        className="w-full text-sm"
                         options={researchers}
                         value={formik.values.researchers}
                         onChange={(value) =>
@@ -502,7 +588,7 @@ export function InvestigationForm({ params, title }) {
                         </span>
                       </label>
                       <MultiSelect
-                        className="w-full"
+                        className="w-full text-sm"
                         options={extendedTeam}
                         value={formik.values.team_extended}
                         onChange={(value) =>
@@ -601,16 +687,30 @@ export function InvestigationForm({ params, title }) {
                           (Jpg,Png, Pdf, Docx, Xlsx, Pptx)
                         </span>
                       </label>
-                      <input
-                        type="file"
-                        id="guide_media_link"
-                        onChange={(event) => {
-                          formik.setFieldValue(
-                            "guide_media_link",
-                            event.currentTarget.files[0]
-                          );
-                        }}
-                      />
+
+                      <div className="flex flex-col gap-2 w-64">
+                        <input
+                          type="file"
+                          id="guide_media_link"
+                          onChange={(event) => {
+                            formik.setFieldValue(
+                              "guide_media_link",
+                              event.currentTarget.files[0]
+                            );
+                          }}
+                        />
+                        {typeof initialGuideMediaLinkRef.current === "string" &&
+                          initialGuideMediaLinkRef.current !== "" && (
+                            <a
+                              href={initialGuideMediaLinkRef.current}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-700 hover:underline text-xs font-regular flex justify-end"
+                            >
+                              Ver archivo actual
+                            </a>
+                          )}
+                      </div>
                     </li>
                     <li className="flex gap-4">
                       <label
@@ -677,7 +777,9 @@ export function InvestigationForm({ params, title }) {
           </div>
         </form>
       )}
-      {step === 2 && <MetodologiesForm investigation={investigationResult} />}
+      {step === 2 && (
+        <MetodologiesForm slug={investigationResult.attributes.slug} />
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ export const ENV = {
     RESEARCHERS: "/researchers",
     MATERIALS: "/materials",
     LOCATIONS: "/locations",
+    PROJECTS: "/projects",
   },
   TOKEN: "token",
 };

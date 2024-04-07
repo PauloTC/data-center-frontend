@@ -1,7 +1,7 @@
 "use client";
 
 import { libre_franklin700, libre_franklin600 } from "@/app/fonts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { MultiSelect } from "react-multi-select-component";
 import Link from "next/link";
@@ -9,59 +9,66 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { validationSchema } from "./MethodologiesForm.form";
-import { Material, Public, Location } from "@/app/api";
+import { Material, Public, Location, Investigation } from "@/app/api";
 import { uploadToS3 } from "@/utils";
+import PulseLoader from "react-spinners/PulseLoader";
 
-export function MetodologiesForm({ investigation }) {
+export function MetodologiesForm({ slug }) {
   const router = useRouter();
 
   const [publics, setPublics] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [investigation, setInvestigation] = useState({});
+  const [isUploading, setIsUploading] = useState(false);
 
   const publicCtrl = new Public();
   const materialCtrl = new Material();
   const locationCtrl = new Location();
+  const investigationCtrl = new Investigation();
 
   const formik = useFormik({
-    initialValues: investigation.attributes.investigation_types.data.reduce(
-      (acc, methodology) => ({
-        ...acc,
-        [methodology.id]: {
-          publics: [],
-          sample: "",
-          locations: [],
-          tool: "",
-          tool_media: null,
-        },
-      }),
-      {}
-    ),
+    initialValues: investigation.attributes?.materials?.data
+      ? investigation.attributes.materials.data.reduce((acc, material) => {
+          return {
+            ...acc,
+            [material.id]: {
+              publics: material.attributes.publics.data.map((item) => ({
+                value: item.id,
+                label: item.attributes.name,
+              })),
+              sample: material.attributes.sample,
+              locations: material.attributes.locations.data.map((location) => ({
+                value: location.id,
+                label: location.attributes.name,
+              })),
+              tool: material.attributes.tool,
+              tool_media: material.attributes.tool_media,
+            },
+          };
+        }, {})
+      : {},
     validationSchema: validationSchema(),
     onSubmit: async (values) => {
       try {
-        for (const investigationType of investigation.attributes
-          .investigation_types.data) {
-          const material = {
-            investigation_id: investigation.id,
-            investigation_type_id: investigationType.id,
-            publics: values[investigationType.id].publics.map(
-              (item) => item.value
-            ),
-            sample: values[investigationType.id].sample,
-            locations: values[investigationType.id].locations.map(
-              (location) => location.value
-            ),
-            tool: values[investigationType.id].tool,
-            tool_media: values[investigationType.id].tool_media,
-            investigation: investigation.id,
-          };
+        for (const material of investigation.attributes?.materials?.data) {
+          let tool_media = values[material.id].tool_media;
 
-          if (material.tool_media) {
-            const fileUrl = await uploadToS3(material.tool_media);
-            material.tool_media = fileUrl;
+          if (tool_media instanceof File) {
+            tool_media = await uploadToS3(tool_media, setIsUploading);
           }
 
-          let result = await materialCtrl.createMaterial(material);
+          const materialData = {
+            publics: values[material.id].publics.map((item) => item.value),
+            sample: values[material.id].sample,
+            locations: values[material.id].locations.map(
+              (location) => location.value
+            ),
+            tool: values[material.id].tool,
+            tool_media: tool_media,
+          };
+
+          await materialCtrl.updateMaterial(material.id, materialData);
+
           router.push("/investigations", { scroll: false });
         }
       } catch (error) {
@@ -70,11 +77,16 @@ export function MetodologiesForm({ investigation }) {
     },
   });
 
+  const initialToolMediaRef = useRef({});
+
   useEffect(() => {
     (async () => {
       try {
         const responsePublics = await publicCtrl.getPublics();
         const responseLocations = await locationCtrl.getLocations();
+        const response = await investigationCtrl.getInvestigation(slug);
+
+        setInvestigation(response);
 
         setPublics(
           responsePublics.data.map((audience) => ({
@@ -89,6 +101,34 @@ export function MetodologiesForm({ investigation }) {
             label: location.attributes.name,
           }))
         );
+
+        formik.setValues(
+          response.attributes?.materials?.data
+            ? response.attributes.materials.data.reduce((acc, material) => {
+                initialToolMediaRef.current[material.id] =
+                  material.attributes.tool_media;
+
+                return {
+                  ...acc,
+                  [material.id]: {
+                    publics: material.attributes.publics.data.map((item) => ({
+                      value: item.id,
+                      label: item.attributes.name,
+                    })),
+                    sample: material.attributes.sample,
+                    locations: material.attributes.locations.data.map(
+                      (location) => ({
+                        value: location.id,
+                        label: location.attributes.name,
+                      })
+                    ),
+                    tool: material.attributes.tool,
+                    tool_media: material.attributes.tool_media,
+                  },
+                };
+              }, {})
+            : {}
+        );
       } catch (error) {
         console.error(error);
       }
@@ -97,6 +137,19 @@ export function MetodologiesForm({ investigation }) {
 
   return (
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
+      {isUploading && (
+        <div
+          className={`${libre_franklin600.className} 
+            gap-4
+            text-xl absolute top-0 right-0 bottom-0 
+            left-0 w-full h-screen bg-black/50 z-50
+            flex text-white flex-col justify-center
+            items-center
+          `}
+        >
+          <PulseLoader color="#fff" />
+        </div>
+      )}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center">
           <Link
@@ -129,11 +182,17 @@ export function MetodologiesForm({ investigation }) {
           Guardar
         </button>
       </div>
-      {investigation.attributes?.investigation_types.data.map(
-        (methodology, index) => (
+      {investigation.attributes?.materials.data.map((material, index) => {
+        const initialToolMedia = initialToolMediaRef.current[material.id];
+
+        console.log("initialToolMedia", initialToolMedia);
+
+        return (
           <div key={index} className="border border-gray-200 rounded-xl p-6">
-            <h4 className={`${libre_franklin700.className} text-xl mb-4`}>
-              Material de {methodology.attributes.name}
+            <h4
+              className={`${libre_franklin700.className} capitalize text-xl mb-4`}
+            >
+              Material de {material.attributes.slug}
             </h4>
             <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
               <ul className="flex flex-col gap-4">
@@ -151,10 +210,9 @@ export function MetodologiesForm({ investigation }) {
                   <MultiSelect
                     className="w-full"
                     options={publics}
-                    labelledBy="Select"
-                    value={formik.values[methodology.id]?.publics}
+                    value={formik.values[material.id]?.publics || []}
                     onChange={(value) =>
-                      formik.setFieldValue(`${methodology.id}.publics`, value)
+                      formik.setFieldValue(`${material.id}.publics`, value)
                     }
                     error={formik.errors.publics}
                   />
@@ -176,15 +234,14 @@ export function MetodologiesForm({ investigation }) {
                     rows="5"
                     className="w-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
                     placeholder="Escribir la muestra..."
-                    // defaultValue={investigation?.sample}
-                    value={formik.values[methodology.id]?.sample || ""}
+                    value={formik.values[material.id]?.sample || ""}
                     onChange={(event) =>
                       formik.setFieldValue(
-                        `${methodology.id}.sample`,
+                        `${material.id}.sample`,
                         event.target.value
                       )
                     }
-                    error={formik.errors[methodology.id]?.sample}
+                    error={formik.errors[material.id]?.sample}
                   ></textarea>
                 </li>
 
@@ -205,11 +262,11 @@ export function MetodologiesForm({ investigation }) {
                   <MultiSelect
                     className="w-full"
                     options={locations}
-                    value={formik.values[methodology.id]?.locations}
+                    value={formik.values[material.id]?.locations || []}
                     onChange={(value) =>
-                      formik.setFieldValue(`${methodology.id}.locations`, value)
+                      formik.setFieldValue(`${material.id}.locations`, value)
                     }
-                    error={formik.errors.locations}
+                    error={formik.errors[material.id]?.locations}
                   />
                 </li>
               </ul>
@@ -235,14 +292,14 @@ export function MetodologiesForm({ investigation }) {
                       focus:ring-blue-500 focus:border-blue-500 
                       block w-full p-2.5"
                     placeholder="Nombre de la herramienta"
-                    value={formik.values[methodology.id]?.tool || ""}
+                    value={formik.values[material.id]?.tool || ""}
                     onChange={(event) =>
                       formik.setFieldValue(
-                        `${methodology.id}.tool`,
+                        `${material.id}.tool`,
                         event.target.value
                       )
                     }
-                    error={formik.errors[methodology.id]?.tool}
+                    error={formik.errors[material.id]?.tool}
                   />
                 </li>
                 <li className="flex gap-4">
@@ -256,22 +313,35 @@ export function MetodologiesForm({ investigation }) {
                       (Jpg,Png, Pdf, Docx, Xlsx, Pptx)
                     </span>
                   </label>
-                  <input
-                    type="file"
-                    id="tool_media"
-                    onChange={(event) => {
-                      formik.setFieldValue(
-                        `${methodology.id}.tool_media`,
-                        event.currentTarget.files[0]
-                      );
-                    }}
-                  />
+                  <div className="flex flex-col gap-2 w-64">
+                    <input
+                      type="file"
+                      id="tool_media"
+                      onChange={(event) => {
+                        formik.setFieldValue(
+                          `${material.id}.tool_media`,
+                          event.currentTarget.files[0]
+                        );
+                      }}
+                    />
+                    {typeof initialToolMedia === "string" &&
+                      initialToolMedia !== "" && (
+                        <a
+                          href={initialToolMedia}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-700 hover:underline text-xs font-regular flex justify-end"
+                        >
+                          Ver archivo actual
+                        </a>
+                      )}
+                  </div>
                 </li>
               </ul>
             </div>
           </div>
-        )
-      )}
+        );
+      })}
     </form>
   );
 }

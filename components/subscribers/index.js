@@ -28,7 +28,7 @@ export default function SubscribersComponent() {
       <h4
         className={`${libre_franklin600.className} text-slate-700 capitalize text-3xl mb-3`}
       >
-        Subscriptores
+        Cliente Amigo
       </h4>
       <p className="tex-sm mb-6">
         Base de datos recopilada de clientes suscritos de forma voluntaria a

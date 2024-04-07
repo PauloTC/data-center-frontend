@@ -3,13 +3,27 @@ import "./styles.scss";
 import { libre_franklin500 } from "@/app/fonts";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { useState, useEffect } from "react";
 
 export default function HeaderComponent() {
+  const [time, setTime] = useState(format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(format(new Date(), "dd/mm/yy HH:mm:ss"));
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   const { logout, user } = useAuth();
   const router = useRouter();
 
-  const today = Date.now();
-  const formatToday = new Date(today);
+  const now = new Date();
+  const formattedDate = format(now, "dd/mm/yy HH:mm:ss");
 
   return (
     <form className="mb-8">
@@ -50,11 +64,9 @@ export default function HeaderComponent() {
             text-sm 
             text-gray-900 
             bg-transparent
-            focus:ring-blue-500 
-            focus:border-blue-500
-            pointer-events-none
+            outline-0
             grow"
-          placeholder="Busca por proyecto, iniciativa ..."
+          placeholder="Busca por nombre de investigación ..."
         />
 
         {/* <button
@@ -85,6 +97,7 @@ export default function HeaderComponent() {
             className="
             header-config
             absolute 
+            pointer-events-none
             opacity-0 
             transition-opacity 
             w-40 
@@ -109,7 +122,7 @@ export default function HeaderComponent() {
           </ul>
         </div>
 
-        <p className="text-gray-900 ml-8">{formatToday.toDateString()}</p>
+        <p className="text-gray-900 w-40 ml-8">{time}</p>
       </div>
     </form>
   );

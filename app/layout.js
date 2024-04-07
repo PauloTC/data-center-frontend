@@ -2,6 +2,7 @@ import "./globals.css";
 import Head from "next/head";
 import { AuthProvider } from "../contexts";
 import { libre_franklin } from "./fonts";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata = {
   title: "Data Center | Dashboard",
@@ -19,6 +20,7 @@ export default function Layout({ title, description, keywords, children }) {
       </Head>
       <body className={`${libre_franklin.className} antialiased`}>
         <AuthProvider>
+          <NextTopLoader />
           <div>{children}</div>
         </AuthProvider>
       </body>
