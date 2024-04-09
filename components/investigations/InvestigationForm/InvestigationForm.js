@@ -50,8 +50,6 @@ export function InvestigationForm({ params, title }) {
     validationSchema: validationSchema(),
     validateOnChange: false,
     onSubmit: async (formValues) => {
-      console.log("formValues", formValues);
-
       try {
         const slug = slugify(formValues.name, { lower: true, strict: true });
         const teams = formValues.teams.map((team) => team.value);
@@ -72,12 +70,14 @@ export function InvestigationForm({ params, title }) {
           "yyyy-MM-dd"
         );
 
-        const end_date = format(
-          parse(formValues.end_date, "dd/MM/yyyy", new Date()),
-          "yyyy-MM-dd"
-        );
+        const end_date =
+          formValues.end_date.length && formValues.end_date.trim() !== ""
+            ? format(
+                parse(formValues.end_date, "dd/MM/yyyy", new Date()),
+                "yyyy-MM-dd"
+              )
+            : null;
 
-        console.log("presented_date", formValues.presented_date);
         const presented_date =
           formValues.presented_date.length &&
           formValues.presented_date.trim() !== ""
@@ -93,8 +93,6 @@ export function InvestigationForm({ params, title }) {
         if (file instanceof File) {
           guide_media_link = await uploadToS3(file, setIsUploading);
         }
-
-        console.log("guide_media_link", guide_media_link);
 
         if (investigation && investigation.id) {
           const result = await investigationCtrl.updateInvestigation(
@@ -114,8 +112,13 @@ export function InvestigationForm({ params, title }) {
           );
 
           setInvestigationResult(result);
-          formik.handleReset();
-          setStep(2);
+
+          if (formValues.investigation_types.length === 0) {
+            router.push("/investigations", { scroll: false });
+          } else {
+            setStep(2);
+          }
+
           return;
         } else {
           let result = await investigationCtrl.createInvestigation({
@@ -156,12 +159,12 @@ export function InvestigationForm({ params, title }) {
             }
           );
 
-          formik.handleReset();
           createdInvestigation?.attributes.investigation_types?.data.length !==
           0
             ? setStep(2)
             : router.push("/investigations", { scroll: false });
         }
+        formik.handleReset();
       } catch (error) {
         console.error(error);
       }
@@ -237,7 +240,6 @@ export function InvestigationForm({ params, title }) {
 
   useEffect(() => {
     if (investigation) {
-      console.log(investigation, "investigation");
       formik.resetForm({ values: initialValues(investigation) });
     }
   }, [investigation]);
@@ -563,6 +565,7 @@ export function InvestigationForm({ params, title }) {
                       </label>
                       <MultiSelect
                         className="w-full text-sm"
+                        required
                         options={researchers}
                         value={formik.values.researchers}
                         onChange={(value) =>

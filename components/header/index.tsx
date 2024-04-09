@@ -4,10 +4,38 @@ import { libre_franklin500 } from "@/app/fonts";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+
+import { useFormik } from "formik";
+import { InvestigationsContext } from "@/contexts";
 
 export default function HeaderComponent() {
   const [time, setTime] = useState(format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+  const { filterInvestigations } = useContext(InvestigationsContext);
+
+  const router = useRouter();
+  const { logout, user } = useAuth();
+
+  const formik = useFormik({
+    initialValues: {
+      search: "",
+    },
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      try {
+        router.push("/investigations");
+        await filterInvestigations({
+          project: "",
+          objectivePublic: "",
+          sort: "desc",
+          pagination: { page: 1 },
+          search: values.search,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -19,14 +47,11 @@ export default function HeaderComponent() {
     };
   }, []);
 
-  const { logout, user } = useAuth();
-  const router = useRouter();
-
   const now = new Date();
   const formattedDate = format(now, "dd/mm/yy HH:mm:ss");
 
   return (
-    <form className="mb-8">
+    <form onSubmit={formik.handleSubmit} className="mb-8">
       <div
         className="
           relative 
@@ -55,8 +80,10 @@ export default function HeaderComponent() {
           </svg>
         </div>
         <input
-          type="search"
-          id="default-search"
+          type="text"
+          id="search"
+          value={formik.values.search}
+          onChange={formik.handleChange}
           className="
             block 
             p-4 
@@ -69,12 +96,6 @@ export default function HeaderComponent() {
           placeholder="Busca por nombre de investigación ..."
         />
 
-        {/* <button
-          type="submit"
-          className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Search
-        </button> */}
         <div className="relative">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +143,7 @@ export default function HeaderComponent() {
           </ul>
         </div>
 
-        <p className="text-gray-900 w-40 ml-8">{time}</p>
+        <p className="text-gray-900 w-44 flex justify-end">{time}</p>
       </div>
     </form>
   );

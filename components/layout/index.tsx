@@ -1,5 +1,6 @@
 import SidebarComponent from "@/components/sidebar";
 import HeaderComponent from "@/components/header";
+import { InvestigationsProvider } from "@/contexts";
 
 export default function LayoutComponent({ children }: any) {
   return (

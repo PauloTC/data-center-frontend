@@ -39,7 +39,9 @@ export class Investigation {
 
       const sortInvestigation = "&sort[0]=id:desc";
 
-      const url = `${ENV.API_URL}${ENV.ENDPOINTS.INVESTIGATIONS}?${populateInvestigation}${sortInvestigation}`;
+      const pagination = "&pagination[page]=1&pagination[pageSize]=9";
+
+      const url = `${ENV.API_URL}${ENV.ENDPOINTS.INVESTIGATIONS}?${populateInvestigation}${sortInvestigation}${pagination}`;
 
       const response = await fetch(url);
       const result = await response.json();
@@ -104,7 +106,9 @@ export class Investigation {
   }
 
   async filterInvestigations(filters) {
-    const { project, objectivePublic, sort } = filters;
+    const { project, objectivePublic, sort, pagination, search } = filters;
+
+    // debugger;
 
     let filter = ``;
 
@@ -113,9 +117,18 @@ export class Investigation {
       filter += `&filters[materials][publics][name][$in][0]=${objectivePublic}`;
     }
 
+    if (pagination) {
+      filter += `&pagination[page]=${pagination.page}&pagination[pageSize]=9`;
+    }
+
     if (project) {
       filter += `&filters[project][name][$eq]=${project}`;
     }
+
+    if (search) {
+      filter += `&filters[name][$contains]=${search}`;
+    }
+
     try {
       const populateInvestigation =
         "populate[0]=researchers.photo&populate[1]=materials&populate[2]=materials.locations&populate[3]=materials.publics&populate[4]=project";

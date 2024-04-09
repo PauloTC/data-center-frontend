@@ -248,101 +248,6 @@ export default function InvestigationSlugComponent({ params }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="border border-gray-200 rounded-xl p-6">
-              <h4
-                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
-              >
-                Objetivo
-              </h4>
-              <ul className="flex flex-col gap-4">
-                <li className="flex items-center gap-4">
-                  <label htmlFor="name" className="w-80">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Objetivo Principal:
-                    </span>
-                  </label>
-
-                  <p className="text-sm w-full capitalize">
-                    {investigation?.goal}
-                  </p>
-                </li>
-                <li className="flex gap-4 flex-col">
-                  <label className="flex w-80" htmlFor="description">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Objetivos Especificos:
-                    </span>
-                  </label>
-                  <p className="text-sm w-full">
-                    {investigation?.specific_goals}
-                  </p>
-                </li>
-              </ul>
-            </div>
-            <div className="border border-gray-200 rounded-xl p-6">
-              <h4
-                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
-              >
-                Presentación
-              </h4>
-              <ul className="flex flex-col gap-6">
-                <li className="flex items-center gap-4">
-                  <label htmlFor="name" className="w-80">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Archivo adjunto:
-                    </span>
-                  </label>
-
-                  {investigation?.guide_media_link && (
-                    <a
-                      href={investigation?.guide_media_link}
-                      target="_blank"
-                      className="text-sm w-full capitalize text-blue-600 hover:underline"
-                    >
-                      Descargar aquí
-                    </a>
-                  )}
-                </li>
-                <li className="flex items-center gap-4">
-                  <label htmlFor="name" className="w-80">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      A quién se presentó:
-                    </span>
-                  </label>
-
-                  <p className="text-sm w-full capitalize">
-                    {investigation?.presented_to}
-                  </p>
-                </li>
-                <li className="flex items-center gap-4">
-                  <label htmlFor="name" className="w-80">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Fecha de Presentación:
-                    </span>
-                  </label>
-
-                  <p className="text-sm  w-full capitalize">
-                    {investigation?.initial_date &&
-                      format(
-                        new Date(investigation?.presented_date),
-                        "dd/MM/yy"
-                      )}
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </div>
-
           {investigation?.materials.data.map((material, index) => (
             <div key={index} className="border border-gray-200 rounded-xl p-6">
               <h4 className={`${libre_franklin700.className} text-xl mb-4`}>
@@ -440,6 +345,102 @@ export default function InvestigationSlugComponent({ params }) {
               </div>
             </div>
           ))}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border border-gray-200 rounded-xl p-6">
+              <h4
+                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+              >
+                Objetivo
+              </h4>
+              <ul className="flex flex-col gap-4">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Objetivo Principal:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.goal}
+                  </p>
+                </li>
+                <li className="flex gap-4 flex-col">
+                  <label className="flex w-80" htmlFor="description">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Objetivos Especificos:
+                    </span>
+                  </label>
+                  <p className="text-sm w-full">
+                    {investigation?.specific_goals}
+                  </p>
+                </li>
+              </ul>
+            </div>
+            <div className="border border-gray-200 rounded-xl p-6">
+              <h4
+                className={`${libre_franklin700.className} text-xl mb-4 capitalize`}
+              >
+                Presentación
+              </h4>
+              <ul className="flex flex-col gap-6">
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Archivo adjunto:
+                    </span>
+                  </label>
+
+                  {investigation?.guide_media_link && (
+                    <a
+                      href={investigation?.guide_media_link}
+                      target="_blank"
+                      className="text-sm w-full capitalize text-blue-600 hover:underline"
+                    >
+                      Descargar aquí
+                    </a>
+                  )}
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      A quién se presentó:
+                    </span>
+                  </label>
+
+                  <p className="text-sm w-full capitalize">
+                    {investigation?.presented_to}
+                  </p>
+                </li>
+                <li className="flex items-center gap-4">
+                  <label htmlFor="name" className="w-80">
+                    <span
+                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                    >
+                      Fecha de Presentación:
+                    </span>
+                  </label>
+
+                  {investigation?.presented_date && (
+                    <p className="text-sm  w-full capitalize">
+                      {format(
+                        new Date(investigation?.presented_date),
+                        "dd/MM/yy"
+                      )}
+                    </p>
+                  )}
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </>

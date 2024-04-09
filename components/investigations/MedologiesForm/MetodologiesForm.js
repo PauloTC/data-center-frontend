@@ -182,166 +182,170 @@ export function MetodologiesForm({ slug }) {
           Guardar
         </button>
       </div>
-      {investigation.attributes?.materials.data.map((material, index) => {
-        const initialToolMedia = initialToolMediaRef.current[material.id];
+      {investigation.attributes?.materials.data.length > 0 ? (
+        investigation.attributes?.materials.data.map((material, index) => {
+          const initialToolMedia = initialToolMediaRef.current[material.id];
 
-        console.log("initialToolMedia", initialToolMedia);
+          return (
+            <div key={index} className="border border-gray-200 rounded-xl p-6">
+              <h4
+                className={`${libre_franklin700.className} capitalize text-xl mb-4`}
+              >
+                Material de {material.attributes.slug}
+              </h4>
+              <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
+                <ul className="flex flex-col gap-4">
+                  <li className="flex items-center gap-4">
+                    <label htmlFor="publics" className="flex flex-col w-80">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Público objetivo:
+                      </span>
+                      <span className="text-xs font-regular">
+                        Hacía quienes va dirigido
+                      </span>
+                    </label>
+                    <MultiSelect
+                      className="w-full"
+                      options={publics}
+                      value={formik.values[material.id]?.publics || []}
+                      onChange={(value) =>
+                        formik.setFieldValue(`${material.id}.publics`, value)
+                      }
+                      error={formik.errors.publics}
+                    />
+                  </li>
 
-        return (
-          <div key={index} className="border border-gray-200 rounded-xl p-6">
-            <h4
-              className={`${libre_franklin700.className} capitalize text-xl mb-4`}
-            >
-              Material de {material.attributes.slug}
-            </h4>
-            <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
-              <ul className="flex flex-col gap-4">
-                <li className="flex items-center gap-4">
-                  <label htmlFor="publics" className="flex flex-col w-80">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Público objetivo:
-                    </span>
-                    <span className="text-xs font-regular">
-                      Hacía quienes va dirigido
-                    </span>
-                  </label>
-                  <MultiSelect
-                    className="w-full"
-                    options={publics}
-                    value={formik.values[material.id]?.publics || []}
-                    onChange={(value) =>
-                      formik.setFieldValue(`${material.id}.publics`, value)
-                    }
-                    error={formik.errors.publics}
-                  />
-                </li>
+                  <li className="flex gap-4">
+                    <label className="flex flex-col w-80" htmlFor="sample">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Muestra
+                      </span>
+                      <span className="text-xs font-regular">
+                        Escribe la muestra
+                      </span>
+                    </label>
+                    <textarea
+                      id="sample"
+                      rows="5"
+                      className="w-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
+                      placeholder="Escribir la muestra..."
+                      value={formik.values[material.id]?.sample || ""}
+                      onChange={(event) =>
+                        formik.setFieldValue(
+                          `${material.id}.sample`,
+                          event.target.value
+                        )
+                      }
+                      error={formik.errors[material.id]?.sample}
+                    ></textarea>
+                  </li>
 
-                <li className="flex gap-4">
-                  <label className="flex flex-col w-80" htmlFor="sample">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                  <li className="flex items-center gap-4">
+                    <label
+                      htmlFor="investigation_types"
+                      className="flex flex-col w-80"
                     >
-                      Muestra
-                    </span>
-                    <span className="text-xs font-regular">
-                      Escribe la muestra
-                    </span>
-                  </label>
-                  <textarea
-                    id="sample"
-                    rows="5"
-                    className="w-full text-sm text-gray-900 bg-white border border-gray-200 p-4 rounded-xl "
-                    placeholder="Escribir la muestra..."
-                    value={formik.values[material.id]?.sample || ""}
-                    onChange={(event) =>
-                      formik.setFieldValue(
-                        `${material.id}.sample`,
-                        event.target.value
-                      )
-                    }
-                    error={formik.errors[material.id]?.sample}
-                  ></textarea>
-                </li>
-
-                <li className="flex items-center gap-4">
-                  <label
-                    htmlFor="investigation_types"
-                    className="flex flex-col w-80"
-                  >
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Ámbito geográfico
-                    </span>
-                    <span className="text-xs font-regular">
-                      Lugares de investigacion
-                    </span>
-                  </label>
-                  <MultiSelect
-                    className="w-full"
-                    options={locations}
-                    value={formik.values[material.id]?.locations || []}
-                    onChange={(value) =>
-                      formik.setFieldValue(`${material.id}.locations`, value)
-                    }
-                    error={formik.errors[material.id]?.locations}
-                  />
-                </li>
-              </ul>
-              <ul className="flex flex-col gap-4 pl-6">
-                <li className="flex gap-4">
-                  <label className="flex flex-col w-80" htmlFor="tool">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Herramienta
-                    </span>
-                    <span className="text-xs font-regular">
-                      Máximo 10 caracteres
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    id="tool"
-                    className="
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Ámbito geográfico
+                      </span>
+                      <span className="text-xs font-regular">
+                        Lugares de investigacion
+                      </span>
+                    </label>
+                    <MultiSelect
+                      className="w-full"
+                      options={locations}
+                      value={formik.values[material.id]?.locations || []}
+                      onChange={(value) =>
+                        formik.setFieldValue(`${material.id}.locations`, value)
+                      }
+                      error={formik.errors[material.id]?.locations}
+                    />
+                  </li>
+                </ul>
+                <ul className="flex flex-col gap-4 pl-6">
+                  <li className="flex gap-4">
+                    <label className="flex flex-col w-80" htmlFor="tool">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Herramienta
+                      </span>
+                      <span className="text-xs font-regular">
+                        Máximo 10 caracteres
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      id="tool"
+                      className="
                       self-start 
                       border border-gray-300 
                       text-gray-900 text-sm rounded-lg 
                       focus:ring-blue-500 focus:border-blue-500 
                       block w-full p-2.5"
-                    placeholder="Nombre de la herramienta"
-                    value={formik.values[material.id]?.tool || ""}
-                    onChange={(event) =>
-                      formik.setFieldValue(
-                        `${material.id}.tool`,
-                        event.target.value
-                      )
-                    }
-                    error={formik.errors[material.id]?.tool}
-                  />
-                </li>
-                <li className="flex gap-4">
-                  <label className="flex flex-col w-80" htmlFor="tool_media">
-                    <span
-                      className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
-                    >
-                      Adjuntar herramienta
-                    </span>
-                    <span className="text-xs font-regular">
-                      (Jpg,Png, Pdf, Docx, Xlsx, Pptx)
-                    </span>
-                  </label>
-                  <div className="flex flex-col gap-2 w-64">
-                    <input
-                      type="file"
-                      id="tool_media"
-                      onChange={(event) => {
+                      placeholder="Nombre de la herramienta"
+                      value={formik.values[material.id]?.tool || ""}
+                      onChange={(event) =>
                         formik.setFieldValue(
-                          `${material.id}.tool_media`,
-                          event.currentTarget.files[0]
-                        );
-                      }}
+                          `${material.id}.tool`,
+                          event.target.value
+                        )
+                      }
+                      error={formik.errors[material.id]?.tool}
                     />
-                    {typeof initialToolMedia === "string" &&
-                      initialToolMedia !== "" && (
-                        <a
-                          href={initialToolMedia}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-700 hover:underline text-xs font-regular flex justify-end"
-                        >
-                          Ver archivo actual
-                        </a>
-                      )}
-                  </div>
-                </li>
-              </ul>
+                  </li>
+                  <li className="flex gap-4">
+                    <label className="flex flex-col w-80" htmlFor="tool_media">
+                      <span
+                        className={`${libre_franklin600.className} font-bold text-sm text-gray-900`}
+                      >
+                        Adjuntar herramienta
+                      </span>
+                      <span className="text-xs font-regular">
+                        (Jpg,Png, Pdf, Docx, Xlsx, Pptx)
+                      </span>
+                    </label>
+                    <div className="flex flex-col gap-2 w-64">
+                      <input
+                        type="file"
+                        id="tool_media"
+                        onChange={(event) => {
+                          formik.setFieldValue(
+                            `${material.id}.tool_media`,
+                            event.currentTarget.files[0]
+                          );
+                        }}
+                      />
+                      {typeof initialToolMedia === "string" &&
+                        initialToolMedia !== "" && (
+                          <a
+                            href={initialToolMedia}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-700 hover:underline text-xs font-regular flex justify-end"
+                          >
+                            Ver archivo actual
+                          </a>
+                        )}
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      ) : (
+        <div className={`${libre_franklin600.className}`}>
+          No hay materiales disponibles.
+        </div>
+      )}
     </form>
   );
 }
