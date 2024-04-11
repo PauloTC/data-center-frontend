@@ -185,13 +185,16 @@ export function MetodologiesForm({ slug }) {
       {investigation.attributes?.materials.data.length > 0 ? (
         investigation.attributes?.materials.data.map((material, index) => {
           const initialToolMedia = initialToolMediaRef.current[material.id];
+          const cleanedSlug = material.attributes.slug
+            .replace(/\d/g, "")
+            .replace(/-/g, " ");
 
           return (
             <div key={index} className="border border-gray-200 rounded-xl p-6">
               <h4
                 className={`${libre_franklin700.className} capitalize text-xl mb-4`}
               >
-                Material de {material.attributes.slug}
+                Material de {cleanedSlug}
               </h4>
               <div className="divide-x divide-gray-200 grid grid-cols-2 gap-6">
                 <ul className="flex flex-col gap-4">

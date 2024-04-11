@@ -14,7 +14,7 @@ export default function HeaderComponent() {
   const { filterInvestigations } = useContext(InvestigationsContext);
 
   const router = useRouter();
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
 
   const formik = useFormik({
     initialValues: {
@@ -46,9 +46,6 @@ export default function HeaderComponent() {
       clearInterval(interval);
     };
   }, []);
-
-  const now = new Date();
-  const formattedDate = format(now, "dd/mm/yy HH:mm:ss");
 
   return (
     <form onSubmit={formik.handleSubmit} className="mb-8">
@@ -118,7 +115,6 @@ export default function HeaderComponent() {
             className="
             header-config
             absolute 
-            pointer-events-none
             opacity-0 
             transition-opacity 
             w-40 
@@ -143,7 +139,7 @@ export default function HeaderComponent() {
           </ul>
         </div>
 
-        <p className="text-gray-900 w-44 flex justify-end">{time}</p>
+        <p className="text-gray-900 w-44 flex justify-end text-sm">{time}</p>
       </div>
     </form>
   );

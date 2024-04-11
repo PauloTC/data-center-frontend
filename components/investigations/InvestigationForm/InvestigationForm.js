@@ -136,7 +136,6 @@ export function InvestigationForm({ params, title }) {
 
           const createdInvestigation = result;
           setInvestigationResult(result);
-          console.log("createdInvestigation", createdInvestigation);
 
           createdInvestigation.attributes.investigation_types.data.map(
             (type) => {
@@ -153,9 +152,7 @@ export function InvestigationForm({ params, title }) {
                 tool_media: "",
                 investigation: createdInvestigation.id,
               };
-              let response = materialCtrl.createMaterial(material);
-
-              console.log("materialResponse", response);
+              materialCtrl.createMaterial(material);
             }
           );
 
@@ -772,6 +769,7 @@ export function InvestigationForm({ params, title }) {
                               block w-full p-2.5"
                         placeholder="Fecha de presentación"
                       />
+                      <br />
                     </li>
                   </ul>
                 </div>

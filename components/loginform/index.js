@@ -75,27 +75,7 @@ export default function LoginForm() {
             required
           />
         </div>
-        <div className="flex items-start">
-          <div className="flex items-start">
-            <div className="flex items-center h-5">
-              <input
-                id="remember"
-                type="checkbox"
-                value=""
-                className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
-              />
-            </div>
-            <label
-              htmlFor="remember"
-              className="ms-2 text-sm font-medium text-gray-900"
-            >
-              Remember me
-            </label>
-          </div>
-          <a href="#" className="ms-auto text-sm text-blue-700 hover:underline">
-            Lost Password?
-          </a>
-        </div>
+
         <button
           type="submit"
           className="
