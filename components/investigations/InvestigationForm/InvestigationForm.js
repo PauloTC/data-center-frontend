@@ -135,6 +135,7 @@ export function InvestigationForm({ params, title }) {
           });
 
           const createdInvestigation = result;
+
           setInvestigationResult(result);
 
           createdInvestigation.attributes.investigation_types.data.map(

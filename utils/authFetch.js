@@ -31,6 +31,4 @@ export async function authFetch(url, params) {
       }
     }
   }
-
-  console.log(token);
 }

@@ -23,7 +23,6 @@ export async function uploadToS3(file, onUploadStatusChange) {
     onUploadStatusChange(true);
 
     const data = await s3.upload(params).promise();
-    console.log(`Archivo subido exitosamente en ${data.Location}`);
 
     // Finalizar la carga
     onUploadStatusChange(false);

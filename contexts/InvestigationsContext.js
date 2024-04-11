@@ -11,14 +11,6 @@ export const InvestigationsProvider = ({ children }) => {
   const [investigations, setInvestigations] = useState([]);
   const [pagination, setPagination] = useState({}); // [1, 2, 3, 4, 5
 
-  useEffect(() => {
-    console.log("investigationsContext", investigations);
-  }, [investigations]);
-
-  useEffect(() => {
-    console.log("pagination", pagination);
-  }, [pagination]);
-
   const getInvestigations = async () => {
     try {
       const response = await investigationCtrl.getInvestigations();

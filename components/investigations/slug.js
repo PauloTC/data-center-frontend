@@ -24,10 +24,6 @@ export default function InvestigationSlugComponent({ params }) {
     })();
   }, []);
 
-  useEffect(() => {
-    console.log("investigation", investigation);
-  }, [investigation]);
-
   return (
     <>
       <div className="flex items-center justify-between mb-6">

@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks";
 export default function AccountInfo() {
   const { user } = useAuth();
 
-  console.log(user);
   return (
     <>
       <div className="flex justify-between">

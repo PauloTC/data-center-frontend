@@ -120,10 +120,6 @@ export default function InvestigationsComponent() {
     }));
   }, [filters.project, filters.objectivePublic]);
 
-  useEffect(() => {
-    console.log("pagination", pagination);
-  }, [pagination]);
-
   return (
     <section>
       <div className="flex justify-between">

@@ -48,8 +48,6 @@ export class Material {
 
       if (response.status !== 200) throw result;
 
-      console.log(result);
-
       return result;
     } catch (error) {
       throw error;
