@@ -1,4 +1,4 @@
-import AccountInfo from "app/components/account/info";
+import AccountInfo from "@/components/account/info";
 
 export default function AccountPage() {
   return (

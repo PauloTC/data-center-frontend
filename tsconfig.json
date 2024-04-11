@@ -19,13 +19,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@components": ["@/app/components"],
-      "@/contexts": ["@/app/contexts"],
-      "@/hooks": ["@/app/hooks"],
-      "@/utils": ["@/app/utils"],
+      "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/layout.js", "app/page.js", "app/components/loginform/index.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/layout.js", "app/page.js", "components/loginform/index.js", "app/research/layout.js"],
   "exclude": ["node_modules"]
 }

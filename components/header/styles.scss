@@ -1,0 +1,13 @@
+.header {
+  &-config {
+    left: 50%;
+    top: calc(100% + 16px);
+    transform: translateX(-50%);
+    visibility: hidden;
+  }
+}
+
+input[type="checkbox"]:checked + ul {
+  opacity: 1;
+  visibility: visible;
+}

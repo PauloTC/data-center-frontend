@@ -1,4 +1,4 @@
-import { API_URL } from "@/app/config";
+import { API_URL } from "@/config";
 import { libre_franklin600 } from "@/app/fonts";
 import Link from "next/link";
 
@@ -19,9 +19,7 @@ export default async function ServicePage() {
 
   return (
     <>
-      <h4
-        className={`${libre_franklin600.className} capitalize text-lg text-3xl mb-6`}
-      >
+      <h4 className={`${libre_franklin600.className} capitalize text-3xl mb-6`}>
         Service
       </h4>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">

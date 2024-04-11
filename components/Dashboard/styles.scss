@@ -1,0 +1,13 @@
+.chart {
+  &-bar:hover {
+    div {
+      opacity: 1;
+    }
+  }
+
+  &-bar {
+    p {
+      transition: all 0.25s;
+    }
+  }
+}
