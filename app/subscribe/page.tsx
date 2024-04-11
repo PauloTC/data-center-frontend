@@ -205,7 +205,7 @@ export default async function SubscribePage() {
         <ul>
           {faq.map((q, index) => {
             return (
-              <li>
+              <li key={index}>
                 <label htmlFor={`faq${index}`}>
                   {q.question}
 

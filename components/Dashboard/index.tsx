@@ -92,7 +92,7 @@ export default function DashboardComponent() {
         Piano de precios
       </h4>
       <br />
-      <div className="flex">
+      {/* <div className="flex">
         <div className="flex flex-col items-end">
           <div className="flex">
             <ul className="flex flex-col items-end border-r-2 w-32 pr-2">
@@ -231,7 +231,7 @@ export default function DashboardComponent() {
             </ul>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
