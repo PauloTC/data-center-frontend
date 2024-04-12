@@ -1,12 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
 import LoginForm from "../../components/loginform";
 import Image from "next/image";
 import "./styles.scss";
 
 export default function LoginPage() {
-  const [showAnimation, setShowAnimation] = useState(false);
-
   const persons = [
     {
       name: "Mafer",
